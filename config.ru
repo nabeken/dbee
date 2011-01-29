@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 $LOAD_PATH.unshift File.dirname(__FILE__) + '/lib'
-require 'dbee/app'
 require 'resque/server'
+require 'dbee/app'
 
 use Rack::ShowExceptions
 run Rack::URLMap.new \
