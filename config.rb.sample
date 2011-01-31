@@ -1,0 +1,6 @@
+module DBEE
+  module FFMPEG
+    SAVE_DIR = '/home/nabeken/dbee-dir'
+    PRESET   = File.expand_path(File.dirname(__FILE__) + '/sample/libx264-IS01.ffpreset')
+  end
+end

@@ -1,36 +1,37 @@
 require 'resque'
 require 'digest/sha1'
+require 'facter'
 
 module DBEE
   module FFMPEG
+    class Config
+      attr_accessor :source, :size
+
+      def getCmd
+          ffmpeg_args = "-y -i \"#{@source}\""
+          ffmpeg_args << " -f mp4 -vcodec libx264"
+          ffmpeg_args << " -fpre #{DBEE::FFMPEG::PRESET} -sameq"
+          ffmpeg_args << " -s #{@size}"
+          ffmpeg_args << " -bufsize 20000k -maxrate 15000k -acodec libfaac"
+          ffmpeg_args << " -ar 48000 -ac 2 -ab 128k -vsync 1"
+          ffmpeg_args << " -threads #{Facter.processorcount}"
+
+          output = "#{DBEE::FFMPEG::SAVE_DIR}/" + File.basename(source, '.ts') + '-' + Digest::SHA1.hexdigest(Time.now.to_f.to_s) + '.m4v'
+
+          ffmpeg_args << " \"#{output}\""
+          ffmpeg_args
+        end
+    end
+
     module TS
       module MASTER
         def perform(source)
           puts "start encoding..."
-          ffmpeg_args = %w(-y -i)
-          ffmpeg_args.push source
-          ffmpeg_args += %w{
-            -f mp4
-            -vcodec libx264
-            -fpre
-          }
-          ffmpeg_args.push DBEE::FFMPEG::FPRE
-          ffmpeg_args += %w{
-            -sameq
-            -s 1440x1080
-            -bufsize 20000k
-            -maxrate 15000k
-            -acodec libfaac
-            -ar 48000
-            -ac 2
-            -ab 128k
-            -vsync 1
-            -threads 1
-          }
-          output = "#{DBEE::FFMPEG::SAVE_DIR}/" + File.basename(source, '.ts') + '-' + Digest::SHA1.hexdigest(Time.now.to_f.to_s) + '.m4v'
-          ffmpeg_args.push output
-          unless system("ffmpeg", *ffmpeg_args)
-            raise "ffmpeg failed to encoding, args: #{ffmpeg_args.join(" ")}"
+          config = FFMPEG::Config.new
+          config.source = source
+          config.size = "1440x1080"
+          unless system("ffmpeg", config.getCmd)
+            raise "ffmpeg failed to encoding, args: #{config.getCmd}"
           end
           puts "encoding sucessfully finished. Saved to #{output}"
         end
@@ -39,30 +40,11 @@ module DBEE
       module IS01
         def perform(source)
           puts "start encoding..."
-          ffmpeg_args = %w(-y -i)
-          ffmpeg_args.push source
-          ffmpeg_args += %w{
-            -f mp4
-            -vcodec libx264
-            -fpre
-          }
-          ffmpeg_args.push DBEE::FFMPEG::FPRE
-          ffmpeg_args += %w{
-            -sameq
-            -s 848x480
-            -bufsize 20000k
-            -maxrate 2500k
-            -acodec libfaac
-            -ar 48000
-            -ac 2
-            -ab 128k
-            -vsync 1
-            -threads 2
-          }
-          output = "#{DBEE::FFMPEG::SAVE_DIR}/" + File.basename(source, '.ts') + '-' + Digest::SHA1.hexdigest(Time.now.to_f.to_s) + '.m4v'
-          ffmpeg_args.push output
-          unless system("ffmpeg", *ffmpeg_args)
-            raise "ffmpeg failed to encoding, args: #{ffmpeg_args.join(" ")}"
+          config = FFMPEG::Config.new
+          config.source = source
+          config.size = "848x480"
+          unless system("ffmpeg", config.getCmd)
+            raise "ffmpeg failed to encoding, args: #{config.getCmd}"
           end
           puts "encoding sucessfully finished. Saved to #{output}"
         end
