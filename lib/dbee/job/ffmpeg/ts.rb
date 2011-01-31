@@ -37,7 +37,7 @@ module DBEE
           unless system("ffmpeg" + config.getCmd)
             raise "ffmpeg failed to encoding, args: #{config.getCmd}"
           end
-          puts "encoding sucessfully finished. Saved to #{@output}"
+          puts "encoding sucessfully finished. Saved to #{config.output}"
         end
       end
 
@@ -50,7 +50,7 @@ module DBEE
           unless system("ffmpeg" + config.getCmd)
             raise "ffmpeg failed to encoding, args: #{config.getCmd}"
           end
-          puts "encoding sucessfully finished. Saved to #{@output}"
+          puts "encoding sucessfully finished. Saved to #{config.output}"
         end
       end
     end
