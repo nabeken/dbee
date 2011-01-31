@@ -18,7 +18,14 @@ module DBEE
           ffmpeg_args << " -s #{@size}"
           ffmpeg_args << " -bufsize 20000k -maxrate 15000k -acodec libfaac"
           ffmpeg_args << " -ar 48000 -ac 2 -ab 128k -vsync 1"
-          ffmpeg_args << " -threads #{Facter.value('ProcessorCount')}"
+
+          if Facter.kernel == "FreeBSD"
+            processorcount = `sysctl -n hw.ncpu`.strip
+          else
+            processorcount = Facter.processorcount
+          end
+
+          ffmpeg_args << " -threads #{processorcount}"
 
           @output = "#{DBEE::FFMPEG::SAVE_DIR}/" + File.basename(source, '.ts') + '-' + Digest::SHA1.hexdigest(Time.now.to_f.to_s) + '.m4v'
 
