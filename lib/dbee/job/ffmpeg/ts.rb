@@ -16,6 +16,7 @@ module DBEE
           ffmpeg_args << " -f mp4 -vcodec libx264"
           ffmpeg_args << " -fpre #{DBEE::FFMPEG::PRESET} -sameq"
           ffmpeg_args << " -s #{@size}"
+          ffmpeg_args << " -aspect 16:9"
           ffmpeg_args << " -bufsize 20000k -maxrate 15000k -acodec libfaac"
           ffmpeg_args << " -ar 48000 -ac 2 -ab 128k -vsync 1"
 
