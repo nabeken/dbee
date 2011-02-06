@@ -1,6 +1,7 @@
 require 'resque'
 require 'digest/sha1'
 require 'facter'
+require 'fileutils'
 
 # initialize facter
 Facter.to_hash
@@ -8,8 +9,12 @@ Facter.to_hash
 module DBEE
   module FFMPEG
     class Config
-      attr_accessor :source, :size
+      attr_accessor :source, :size, :dir
       attr_reader :output
+
+      def initialize
+        @dir = "default"
+      end
 
       def getCmd
           ffmpeg_args =  " -y -i \"#{@source}\""
@@ -28,8 +33,9 @@ module DBEE
 
           ffmpeg_args << " -threads #{processorcount}"
 
-          @output = "#{DBEE::FFMPEG::SAVE_DIR}/" + File.basename(source, '.ts') + '-' + Digest::SHA1.hexdigest(Time.now.to_f.to_s) + '.m4v'
-
+          save_dir = "#{DBEE::FFMPEG::SAVE_DIR}/#{@dir}/"
+          FileUtils.mkdir_p(save_dir) unless File.exists?(save_dir)
+          @output   = save_dir + File.basename(source, '.ts') + '.m4v'
           ffmpeg_args << " \"#{@output}\""
           ffmpeg_args
         end
@@ -42,6 +48,7 @@ module DBEE
           config = FFMPEG::Config.new
           config.source = source
           config.size = "1440x1080"
+          config.dir = "master"
           unless system("ffmpeg" + config.getCmd)
             raise "ffmpeg failed to encoding, args: #{config.getCmd}"
           end
@@ -55,6 +62,7 @@ module DBEE
           config = FFMPEG::Config.new
           config.source = source
           config.size = "848x480"
+          config.dir = "IS01"
           unless system("ffmpeg" + config.getCmd)
             raise "ffmpeg failed to encoding, args: #{config.getCmd}"
           end
