@@ -2,5 +2,15 @@ module DBEE
   module FFMPEG
     SAVE_DIR = '/home/nabeken/dbee-dir'
     PRESET   = File.expand_path(File.dirname(__FILE__) + '/sample/libx264-IS01.ffpreset')
+    PROGRAM_ID = {
+      /ＭＸテレビ/   => "23608",
+      /ＴＢＳテレビ/ => "1048",
+      /フジテレビ/   => "1056",
+      /日本テレビ/   => "1040",
+      /ＮＨＫ教育/   => "1032",
+      /ＮＨＫ総合/   => "1024",
+      /テレビ東京/   => "1072",
+      /テレビ朝日/   => "1064"
+    }
   end
 end

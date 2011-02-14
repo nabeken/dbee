@@ -9,11 +9,12 @@ Facter.to_hash
 module DBEE
   module FFMPEG
     class Config
-      attr_accessor :source, :size, :dir
+      attr_accessor :source, :size, :dir, :program_id
       attr_reader :output
 
       def initialize
         @dir = "default"
+        @program_id = ""
       end
 
       def getCmd
@@ -30,14 +31,25 @@ module DBEE
           else
             processorcount = Facter.processorcount
           end
-
           ffmpeg_args << " -threads #{processorcount}"
+
+          unless @program_id.empty?
+            ffmpeg_args << " -programid #{@program_id}"
+          end
 
           save_dir = "#{DBEE::FFMPEG::SAVE_DIR}/#{@dir}/"
           FileUtils.mkdir_p(save_dir) unless File.exists?(save_dir)
           @output   = save_dir + File.basename(source, '.ts') + '.m4v'
           ffmpeg_args << " \"#{@output}\""
           ffmpeg_args
+        end
+
+        def set_programid
+          @program_id = DBEE::FFMPEG::PROGRAM_ID.find { |key, val| key.match(@source) }.last
+          # 何もマッチしなかった場合はデフォルトへfallback
+          if @program_id.nil?
+            @program_id = ""
+          end
         end
     end
 
@@ -49,6 +61,8 @@ module DBEE
           config.source = source
           config.size = "1440x1080"
           config.dir = "master"
+          config.set_programid
+          puts "PROGRAM_ID: #{config.program_id}"
           unless system("ffmpeg" + config.getCmd)
             raise "ffmpeg failed to encoding, args: #{config.getCmd}"
           end
@@ -63,6 +77,7 @@ module DBEE
           config.source = source
           config.size = "848x480"
           config.dir = "IS01"
+          config.set_programid
           unless system("ffmpeg" + config.getCmd)
             raise "ffmpeg failed to encoding, args: #{config.getCmd}"
           end
