@@ -67,8 +67,7 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
    具体的には:
 
    a) run_listをshiftし先頭のクラス名を取得。
-   b) 取得したクラス名でrunningへ更新。
-   c) run_list[クラス名][args]で引数を取得しResque.enqueue(クラス名, 引数)でエンキューする。
+   b) Resque.enqueue(クラス名, request_id)でエンキューする。
 
 3. Request APIへジョブの開始を通知する。
 
