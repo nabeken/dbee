@@ -67,7 +67,7 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
    具体的には:
 
    a) run_listをshiftし先頭のクラス名を取得。
-   b) Resque.enqueue(クラス名, request_id)でエンキューする。
+   b) Resque.enqueue(クラス名, request_id, output)でエンキューする。
 
 3. Request APIへジョブの開始を通知する。
 
@@ -76,12 +76,12 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
    a) running_jobを現在のクラス名でPUT
    b) workerを現在のworkerのホスト名でPUT
 
-4. ジョブを開始する前にRequest APIから引数のrequest_idの情報を取得する。
+4. ジョブを開始する前にRequest APIから引数のrequest_id, outputの情報を取得する。
 
    具体的には:
 
    a) Request APIからrequest_idの情報を取得。
-   b) request["output"]["file"] (リクエスト固有)から出力先の情報を取得する。
+   b) output["file"] から出力先の情報を取得する。
    c) 直前のジョブの成果物を利用してジョブ実行。
 
 5. ジョブが完了するとworkerはRequest APIを叩く。
@@ -91,7 +91,8 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
    a) 先程取得したrequestのran_listに自分のクラス名pushする。
    b) 先程取得したrequestのrun_listに自分のクラス名削除する。
    c) 先程取得したrequest["run_list"][class]["output"]["file"](ジョブ固有)に成果物の場所を記録する。
-   d) 先程取得したrequest["output"]["file"](リクエスト固有)に成果物の場所を記録する。
+   d) 次のジョブも同じノードで実行する必要がある場合は
+      先程取得したrequest["run_list"]["output"]["same_node"]をtrueに、そうでなければfalseを設定する。
    e) 先程取得したrequest["running_job"]を削除する。
    f) requestをPUTする。
 
@@ -100,6 +101,8 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
    具体的には:
 
    a) 先程取得したrequestのrunning_jobをnullに設定し、PUTする。nullにすることでジョブが失敗したことを通知する。
+   b) 特にステータスが変わるわではなくて単にジョブがDELETEされないのでこれ以上進まないだけ。
+      running_jobがnullであれば失敗して止まっていると区別するため。
 
 7. running_jobのDELETEを受け取ったRequest APIはrun_listに基づいてジョブをenqueueする。
 
