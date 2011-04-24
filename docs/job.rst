@@ -14,7 +14,9 @@ workerは直接Redisサーバと通信できる必要がある。
 ジョブは自身の成果物を見て、次のジョブも前のジョブと同じノードで実行される必要が
 あるかどうか判断する。もし、必要があればそのためのフラグを立てる。
 
-そのため、各workerは自身のキューを必ず持つ。同一workerで実行すべきタスクは各worker専用
+フラグを立てた後、インスタンス変数 @host_based_queue に自身のホスト名を入れる。
+
+各workerは自身のキューを必ず持つ。同一workerで実行すべきタスクは各worker専用
 のキューへ投入する。
 
 流れ
@@ -115,4 +117,7 @@ masterが担当 (分散しない)
 
 Resqueからは以下のようにして引数を渡す。 ::
 
-    Resque.enqueue(DBEE::Job::Encode, request_id, run_list["output"])
+    Resque.enqueue(DBEE::Job::Encode, request_id, next_job_name, next_job["args"], job["output"])
+
+Resqueはenqueue時に第1引数のインスタンス変数 @queue もしくは特異メソッド queue を呼びだす。
+よって、enqueue前にinstance_variable_set(:@host_based_queue, Factor.fqdn) をする。

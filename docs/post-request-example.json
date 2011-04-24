@@ -1,0 +1,21 @@
+{
+  "requester": "rika.tokyo.tknetworks.org",
+  "run_list": [
+    {
+      "name": "DBEE::Job::Download",
+      "args": {
+        "url": "http://projects.tsuntsun.net/~nabeken/oreimo-small.ts"
+      }
+    },
+    {
+      "name": "DBEE::Job::Encode::IPAD",
+      "args": {}
+    }
+  ],
+  "program": {
+    "name": "マギカ",
+    "ch": "TBS",
+    "filename": "magic_magica.ts",
+    "checksum.SHA1": "aa"
+  }
+}

@@ -9,6 +9,8 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
 リクエストが成功するとリクエストを追跡できるリクエストIDが返却される。
 このリクエストIDを使ってこのリクエストがどのジョブを実行中かを追跡することができる。
 
+ジョブはリクエスト内で重複しないものとする。同じジョブ名を使った場合の動作は不定。
+
 次のジョブがなければそのジョブでリクエストは完了。
 
 リクエスト管理で使うデータ
@@ -39,26 +41,23 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
 1. リクエストをするノードは以下のJSONをPOSTする。
 
     Request APIに投げるJSON ::
-    
+
         {
           "requester": リクエストをしたホスト名,
           "run_list": [
             {
               "name": class1,
-              "args": 引数,
-              "output": このジョブの出力
+              "args": 引数
             },
             {
               "name": class2,
-              "args": 引数,
-              "output" このジョブの出力
+              "args": 引数
             }
           ],
           "program" {
             "name": 番組名,
             "ch": チャネル名,
-            "filename": 素材のファイル名,
-            "...": ...
+            "filename": 素材のファイル名
           }
         }
 
@@ -88,13 +87,11 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
 
    具体的には:
 
-   a) 先程取得したrequestのran_listに自分のクラス名pushする。
-   b) 先程取得したrequestのrun_listに自分のクラス名削除する。
-   c) 先程取得したrequest["run_list"][class]["output"]["file"](ジョブ固有)に成果物の場所を記録する。
-   d) 次のジョブも同じノードで実行する必要がある場合は
+   a) 先程取得したrequest["run_list"][class]["output"]["file"](ジョブ固有)に成果物の場所を記録する。
+   b) 次のジョブも同じノードで実行する必要がある場合は
       先程取得したrequest["run_list"]["output"]["same_node"]をtrueに、そうでなければfalseを設定する。
-   e) 先程取得したrequest["running_job"]を削除する。
-   f) requestをPUTする。
+   c) requestをPUTする。
+   d) running_jobをDELETEする。
 
 6. ジョブが失敗するとworkerはRequest APIを叩く。
 
@@ -105,6 +102,11 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
       running_jobがnullであれば失敗して止まっていると区別するため。
 
 7. running_jobのDELETEを受け取ったRequest APIはrun_listに基づいてジョブをenqueueする。
+
+   具体的には:
+
+   a) requestのran_listにrunning_jobをpushする。
+   b) requestのrun_listからrunning_jobを削除する。
 
 8. running_jobがnullのPUTを受け取ったRequest APIはそのリクエストを中断する。
 

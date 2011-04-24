@@ -18,10 +18,13 @@ DbeE リクエスト管理API
     DbeEの分散バッチエンコードリクエストを管理するためのRESTful APIを提供する。
 
 DbeE キュー管理API
-    Resqueへのジョブ投入、ジョブ修正、ジョブ削除、ジョブ一覧取得用のRESTful APIを提供する。
+    ジョブ修正、ジョブ削除、ジョブ一覧取得用のRESTful APIを提供する。
 
 DbeE materials API
     素材動画のダウンロード用のRESTful APIを提供する。
+
+DbeE Storage API
+    成果物のアップロード用のS3互換APIを提供する。内部はboardwalkを使用している。
 
 RESTful APIはすべてJSON形式で情報を交換する。
 
