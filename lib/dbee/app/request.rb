@@ -30,20 +30,19 @@ module DBEE
       end
 
       post '/' do
-        content_type :json
         # POSTされたJSONを取得
         request.body.rewind
 
         begin
           dbee_request = JSON.parse(request.body.read)
         rescue
-          halt 400, "Invalid JSON passed"
+          halt 400, "Invalid JSON passed\n"
         end
 
         # 全要素が揃っているか確認
         unless validate_request(dbee_request, %w(requester run_list program))
           # 要素が揃っていないのでacceptしない
-          halt 400, "Request at least needs 'requester', 'run_list', 'program' params"
+          halt 400, "Request at least needs 'requester', 'run_list', 'program' params\n"
         end
 
         # run_list内のoutputを初期化する
@@ -69,36 +68,41 @@ module DBEE
 
         # レスポンス生成
         # 303 See Other で redirect する
+        content_type :json
         redirect "/request/#{request_id}", 303
       end
 
       put '/:id' do
         # JSONのキーすべてでリクエストを上書きする
-        content_type :json
         # PUTされたJSONを取得
         request.body.rewind
         begin
           dbee_request = JSON.parse(request.body.read)
         rescue
-          halt 400, "Invalid JSON passed"
+          halt 400, "Invalid JSON passed\n"
         end
         required_keys = %w(requester run_list program)
         unless validate_request(dbee_request, required_keys)
-          halt 400, "Request at least need '#{required_keys.join(", ")}' parameter."
+          halt 400, "Request at least need '#{required_keys.join(", ")}' parameter.\n"
         end
         requested = JSON.parse(Resque.redis.hget("request", params[:id]))
         dbee_request.keys.each do |k|
           requested[k] = dbee_request[k]
         end
         json = JSON.unparse(requested)
+        content_type :json
         Resque.redis.hset("request", params[:id], json)
       end
 
       # return resources
       get '/:id' do
-        content_type :json
         # Redisから取得したJSONをそのまま返す
-        Resque.redis.hget("request", params[:id])
+        if Resque.redis.hexists("request", params[:id])
+          content_type :json
+          Resque.redis.hget("request", params[:id])
+        else
+          halt 404, "Request ##{params[:id]} not found\n"
+        end
       end
 
       %w(requester worker run_list ran_list program).each do |k|
@@ -109,47 +113,47 @@ module DBEE
         end
 
         put "/:id/#{k}" do
-          content_type :json
           # PUTされたJSONを取得
           request.body.rewind
           # JSONのバリデート
           begin
             dbee_request = JSON.parse(request.body.read)
           rescue
-            halt 400, "Invalid JSON passed"
+            halt 400, "Invalid JSON passed\n"
           end
 
           unless validate_request(dbee_request, [k])
-            halt 400, "Request at least need '#{k}' parameter."
+            halt 400, "Request at least need '#{k}' parameter.\n"
           end
           requested = JSON.parse(Resque.redis.hget("request", params[:id]))
           requested[k] = dbee_request[k]
+          content_type :json
           Resque.redis.hset("request", params[:id], JSON.unparse(requested))
         end
       end
 
       get "/:id/running_job" do
-        content_type :json
         requested = JSON.parse(Resque.redis.hget("request", params[:id]))
+        content_type :json
         requested[k].to_json
       end
 
       put "/:id/running_job" do
-        content_type :json
         # PUTされたJSONを取得
         request.body.rewind
         # JSONのバリデート
         begin
           dbee_request = JSON.parse(request.body.read)
         rescue
-          halt 400, "Invalid JSON passed"
+          halt 400, "Invalid JSON passed\n"
         end
 
         unless validate_request(dbee_request, %w(running_job))
-          halt 400, "Request at least need running_job parameter."
+          halt 400, "Request at least need running_job parameter.\n"
         end
         requested = JSON.parse(Resque.redis.hget("request", params[:id]))
         requested["running_job"] = dbee_request["running_job"]
+        content_type :json
         Resque.redis.hset("request", params[:id], JSON.unparse(requested))
       end
 
@@ -196,7 +200,7 @@ module DBEE
             halt 404
           end
         rescue
-          halt 400, "Invalid JSON passed"
+          halt 400, "Invalid JSON passed\n"
         end
       end
     end
