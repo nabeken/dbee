@@ -4,6 +4,7 @@ require 'resque/tasks'
 load '../resque/tasks/redis.rake'
 load 'config.rb'
 require 'dbee/app'
+require 'dbee/job'
 
 unless ENV['REDIS'].nil?
   Resque.redis = ENV['REDIS']
