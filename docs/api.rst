@@ -25,6 +25,7 @@ DbeE materials API
 
 DbeE Storage API
     成果物のアップロード用のS3互換APIを提供する。内部はboardwalkを使用している。
+    boardwalkはRackableではないので独立したサーバにする。
 
 RESTful APIはすべてJSON形式で情報を交換する。
 
