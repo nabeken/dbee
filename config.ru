@@ -7,8 +7,20 @@ require 'dbee/app/job'
 require 'dbee/app/request'
 
 use Rack::ShowExceptions
-run Rack::URLMap.new \
-  "/"        => DBEE::App.new,
-  "/job"     => DBEE::App::Job.new,
-  "/request" => DBEE::App::Request.new,
-  "/resque"  => Resque::Server.new
+
+map '/' do
+  use Rack::Static, :urls => ["/coverage"], :root => "/home/nabeken/work/dbee"
+  run DBEE::App.new
+end
+
+map '/job' do
+  run DBEE::App::Job.new
+end
+
+map '/request' do
+  run DBEE::App::Request.new
+end
+
+map '/resque' do
+  run Resque::Server.new
+end
