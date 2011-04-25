@@ -1,3 +1,5 @@
+# vim:fileencoding=utf-8
+
 require 'sinatra/base'
 require 'resque'
 require 'json'
@@ -6,6 +8,8 @@ require 'dbee/job'
 module DBEE
   class App
     class Request < Sinatra::Base
+      @request_hkey = DBEE::Config::REQUEST_REDIS_HKEY
+
       helpers do
         def issue_new_request_id
           Resque.redis.incr("request_id")
@@ -57,7 +61,7 @@ module DBEE
         # run_listはここではまだ取り除かないので先にhsetしておく。
         # Redisへ永続化
         json = JSON.unparse(dbee_request)
-        Resque.redis.hset("request", request_id, json)
+        Resque.redis.hset(@request_hkey, request_id, json)
 
         # run_listをshiftし次に実行するジョブ名を取得
         run_list = dbee_request["run_list"].shift
@@ -85,21 +89,21 @@ module DBEE
         unless validate_request(dbee_request, required_keys)
           halt 400, "Request at least need '#{required_keys.join(", ")}' parameter.\n"
         end
-        requested = JSON.parse(Resque.redis.hget("request", params[:id]))
+        requested = JSON.parse(Resque.redis.hget(@request_hkey, params[:id]))
         dbee_request.keys.each do |k|
           requested[k] = dbee_request[k]
         end
-        json = JSON.unparse(requested)
+        Resque.redis.hset(@request_hkey, params[:id], JSON.unparse(requested))
         content_type :json
-        Resque.redis.hset("request", params[:id], json)
+        Resque.redis.hget(@request_hkey, params[:id])
       end
 
       # return resources
       get '/:id' do
         # Redisから取得したJSONをそのまま返す
-        if Resque.redis.hexists("request", params[:id])
+        if Resque.redis.hexists(@request_hkey, params[:id])
           content_type :json
-          Resque.redis.hget("request", params[:id])
+          Resque.redis.hget(@request_hkey, params[:id])
         else
           halt 404, "Request ##{params[:id]} not found\n"
         end
@@ -108,8 +112,8 @@ module DBEE
       %w(requester worker run_list ran_list program).each do |k|
         get "/:id/#{k}" do
           content_type :json
-          requested = JSON.parse(Resque.redis.hget("request", params[:id]))
-          requested[k].to_json
+          requested = JSON.parse(Resque.redis.hget(@request_hkey, params[:id]))
+          {k => requested[k]}.to_json
         end
 
         put "/:id/#{k}" do
@@ -125,17 +129,18 @@ module DBEE
           unless validate_request(dbee_request, [k])
             halt 400, "Request at least need '#{k}' parameter.\n"
           end
-          requested = JSON.parse(Resque.redis.hget("request", params[:id]))
+          requested = JSON.parse(Resque.redis.hget(@request_hkey, params[:id]))
           requested[k] = dbee_request[k]
+          Resque.redis.hset(@request_hkey, params[:id], JSON.unparse(requested))
           content_type :json
-          Resque.redis.hset("request", params[:id], JSON.unparse(requested))
+          Resque.redis.hget(@request_hkey, params[:id])
         end
       end
 
       get "/:id/running_job" do
-        requested = JSON.parse(Resque.redis.hget("request", params[:id]))
+        requested = JSON.parse(Resque.redis.hget(@request_hkey, params[:id]))
         content_type :json
-        requested[k].to_json
+        {"running_job" => requested["running_job"]}.to_json
       end
 
       put "/:id/running_job" do
@@ -151,15 +156,16 @@ module DBEE
         unless validate_request(dbee_request, %w(running_job))
           halt 400, "Request at least need running_job parameter.\n"
         end
-        requested = JSON.parse(Resque.redis.hget("request", params[:id]))
+        requested = JSON.parse(Resque.redis.hget(@request_hkey, params[:id]))
         requested["running_job"] = dbee_request["running_job"]
+        Resque.redis.hset(@request_hkey, params[:id], JSON.unparse(requested))
         content_type :json
-        Resque.redis.hset("request", params[:id], JSON.unparse(requested))
+        Resque.redis.hget(@request_hkey, params[:id])
       end
 
       delete '/:id/running_job' do
         begin
-          requested = JSON.parse(Resque.redis.hget("request", params[:id]))
+          requested = JSON.parse(Resque.redis.hget(@request_hkey, params[:id]))
           # DELETEをリクエストした時のrunning_job
           running_job = requested["running_job"]
 
@@ -191,7 +197,7 @@ module DBEE
                              next_job["args"],
                              job["output"])
             end
-            Resque.redis.hset("request", params[:id], JSON.unparse(requested))
+            Resque.redis.hset(@request_hkey, params[:id], JSON.unparse(requested))
             # レスポンス生成
             # 303 See Other で redirect する
             redirect "/request/#{params[:id]}", 303
