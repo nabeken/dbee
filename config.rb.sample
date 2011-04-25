@@ -1,5 +1,10 @@
+# vim:fileencoding=utf-8
+
 module DBEE
   module Config
+    API_URL = "http://192.168.5.3:9393"
+    REQUEST_REDIS_HKEY = "request"
+
     module Encode
       PRESET   = File.expand_path(File.dirname(__FILE__) + '/sample/libx264-IS01.ffpreset')
       PROGRAM_ID = {
