@@ -164,49 +164,46 @@ module DBEE
       end
 
       delete '/:id/running_job' do
-        begin
-          requested = JSON.parse(Resque.redis.hget(@request_hkey, params[:id]))
-          # DELETEをリクエストした時のrunning_job
-          running_job = requested["running_job"]
+        requested = JSON.parse(Resque.redis.hget(@request_hkey, params[:id]))
+        # DELETEをリクエストした時のrunning_job
+        running_job = requested["running_job"]
 
-          # キーがあれば削除
-          if requested.has_key?("running_job")
-            requested.delete("running_job")
-            # 今のジョブ情報を取得する
-            job = requested["run_list"].shift
-            # ran_listへ移動
-            if requested["ran_list"].nil?
-              requested["ran_list"] = []
-            end
-            requested["ran_list"].push job
-
-            # 次のジョブがあれば投入する
-            unless requested["run_list"].empty?
-              next_job = requested["run_list"].first
-              next_job_class = get_class_name(next_job["name"])
-
-              # 次のキューは今のジョブと同じノードにするかどうか
-              if job["output"]["next_same_node"]
-                next_job_class.instance_variable_set(
-                  :@host_based_queue, requested["worker"].to_sym
-                )
-              end
-              Resque.enqueue(next_job_class,
-                             params[:id],
-                             next_job["name"],
-                             next_job["args"],
-                             job["output"])
-            end
-            Resque.redis.hset(@request_hkey, params[:id], JSON.unparse(requested))
-            # レスポンス生成
-            # 303 See Other で redirect する
-            redirect "/request/#{params[:id]}", 303
-          else
-            # すでにないのに削除しようとすると404?405?
-            halt 404
+        # キーがあれば削除
+        if requested.has_key?("running_job")
+          requested.delete("running_job")
+          # 今のジョブ情報を取得する
+          job = requested["run_list"].shift
+          # ran_listへ移動
+          if requested["ran_list"].nil?
+            requested["ran_list"] = []
           end
-        rescue
-          halt 400, "Invalid JSON passed\n"
+          requested["ran_list"].push job
+
+          # 次のジョブがあれば投入する
+          unless requested["run_list"].empty?
+            next_job = requested["run_list"].first
+            next_job_class = get_class_name(next_job["name"])
+
+            # 次のキューは今のジョブと同じノードにするかどうか
+            if job["output"]["next_same_node"]
+              halt 400, "worker required" if requested["worker"].nil?
+              next_job_class.instance_variable_set(
+                :@host_based_queue, requested["worker"].to_sym
+              )
+            end
+            Resque.enqueue(next_job_class,
+                           params[:id],
+                           next_job["name"],
+                           next_job["args"],
+                           job["output"])
+          end
+          Resque.redis.hset(@request_hkey, params[:id], JSON.unparse(requested))
+          # レスポンス生成
+          # 303 See Other で redirect する
+          redirect "/request/#{params[:id]}", 303
+        else
+          # すでにないのに削除しようとすると404?405?
+          halt 404
         end
       end
     end
