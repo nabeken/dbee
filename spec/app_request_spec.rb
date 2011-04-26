@@ -52,6 +52,11 @@ describe 'DBEE Requedt API App' do
   end
 
   it "posts invalid JSON and gets error" do
+    post '/', "aaa"
+    last_response.status.should == 400
+  end
+
+  it "posts insufficient JSON and gets error" do
     post '/', {
       "aaa" => "bbb"
     }.to_json
@@ -95,6 +100,16 @@ describe 'DBEE Requedt API App' do
     JSON.parse(last_response.body).should == JSON.parse(@successed_request[:json])
   end
 
+  it "puts invalid JSON using request id" do
+    put "/#{@successed_request[:request_id]}", "aaaa"
+    last_response.status.should == 400
+  end
+
+  it "puts insufficient JSON using request id" do
+    put "/#{@successed_request[:request_id]}", {"requester" => "shiho.tokyo"}.to_json
+    last_response.status.should == 400
+  end
+
   it "puts requester using request id and get only updated requester json" do
     get "/#{@successed_request[:request_id]}"
     last_response.should be_ok
@@ -120,6 +135,17 @@ describe 'DBEE Requedt API App' do
     data = JSON.parse(@successed_request[:json])
     get "/#{@successed_request[:request_id]}/requester"
     JSON.parse(last_response.body).should == JSON.parse({"requester" => data["requester"]}.to_json)
+  end
+
+  it "puts invalid requester using request id" do
+    put "/#{@successed_request[:request_id]}/requester", "shiho.tokyo.tknetworks.org"
+    last_response.status.should == 400
+  end
+
+  it "puts requester not including requester and gets error" do
+    put "/#{@successed_request[:request_id]}/requester",
+        {"program" => "shiho.tokyo.tknetworks.org"}.to_json
+    last_response.status.should == 400
   end
 
   it "puts successed request's running_job using request id" do
@@ -148,6 +174,17 @@ describe 'DBEE Requedt API App' do
     ).should == JSON.parse(last_response.body)
   end
 
+  it "puts successed request's running_job using invalid json" do
+    put "/#{@successed_request[:request_id]}/running_job", "aaaa"
+    last_response.status.should == 400
+  end
+
+  it "puts successed request's running_job using insufficient json" do
+    put "/#{@successed_request[:request_id]}/running_job",
+        {"requester" => "shiho.tokyo"}.to_json
+    last_response.status.should == 400
+  end
+
   it "deletes successed request's running_job using request it" do
     delete "/#{@successed_request[:request_id]}/running_job"
     last_response.status.should == 303
@@ -156,5 +193,30 @@ describe 'DBEE Requedt API App' do
 
     delete "/#{@successed_request[:request_id]}/running_job"
     last_response.status.should == 404
+  end
+
+  it "deletes successed request's running_job which has next_same_node = true" do
+    data = @json_data.dup
+    post '/', data.to_json
+    last_response.status.should == 303
+    request_id = last_response.headers["Location"].split('/').last
+
+    get "/#{request_id}"
+    data2 = JSON.parse(last_response.body)
+    data2["worker"] = "shiho-dev.tokyo.tknetworks.org"
+    data2["running_job"] = "DBEE::Job::Download"
+    data2["run_list"][0]["output"]["next_same_node"] = true
+    data2["run_list"].push({
+      "name" => "DBEE::Job::Download",
+      "args" => {
+        "url"    => "http://example.org/hoge.ts",
+        "output" => true
+      }
+    })
+    put "/#{request_id}", data2.to_json
+    last_response.should be_ok
+
+    delete "/#{request_id}/running_job"
+    last_response.status.should == 303
   end
 end
