@@ -51,7 +51,7 @@ module DBEE
           end
           puts "encode successfully finished"
 
-          puts "Caluculating MD5 for #{config.output}...."
+          puts "Calculating MD5 for #{config.output}...."
           # 成果物のハッシュ値を計算 (S3向けにひとまずMD5)
           digest = Digest::MD5.new
           File.open(config.output, "r") do |f|

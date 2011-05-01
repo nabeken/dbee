@@ -36,7 +36,7 @@ module DBEE
 
         # すでにmetadataが生成済みならそのまま終了
         unless File.exist?("#{filename}.json")
-          puts "Calulating SHA256 for #{basename}...."
+          puts "Calculating SHA256 for #{basename}...."
           digest = Digest::SHA256.new
           File.open(filename, 'r') do |f|
             buf = ''

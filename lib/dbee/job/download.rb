@@ -59,7 +59,7 @@ module DBEE
           raise "failed to download from #{url}. got #{response.status}"
         end
 
-        puts "Calulating SHA256 for #{download_file}...."
+        puts "Calculating SHA256 for #{download_file}...."
         digest = Digest::SHA256.new
         File.open(download_file, 'r') do |f|
           buf = ''
