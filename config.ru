@@ -16,11 +16,9 @@ end
 map '/job' do
   run DBEE::App::Job.new
 end
-
 map '/request' do
   run DBEE::App::Request.new
 end
-
 map '/resque' do
   run Resque::Server.new
 end

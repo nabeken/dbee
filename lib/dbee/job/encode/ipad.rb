@@ -1,5 +1,7 @@
 require 'dbee/job/encode'
 require 'facter'
+require 'digest/md5'
+require 'digest/sha2'
 
 # initialize facter
 Facter.to_hash
@@ -41,15 +43,28 @@ module DBEE
           config.dir = "iPad"
           config.set_programid
 
-          unless system("ffmpeg" + config.get_cmd)
+          unless system("ffmpeg" + config.get_cmd + " >/dev/null 2>&1")
             # ffmpegが失敗した場合
             request["running_job"] = nil
             put_request(request)
             raise "Request #{@request_id} failed."
           end
           puts "encode successfully finished"
+
+          puts "Caluculating MD5 for #{config.output}...."
+          # 成果物のハッシュ値を計算 (S3向けにひとまずMD5)
+          digest = Digest::MD5.new
+          File.open(config.output, "r") do |f|
+            buf = String.new
+            while f.read(1024 * 8, buf)
+              digest << buf
+            end
+          end
+          puts "...finished."
+
           # Request APIへ報告する
           job = request["run_list"].first
+          job["output"]["MD5"] = digest.hexdigest
           job["output"]["file"] = config.output
           job["output"]["worker"] = worker
           # 次のジョブも同一ノードで実行してほしい
@@ -59,7 +74,7 @@ module DBEE
 
           # 最後にrunning_jobをDELETEしてジョブの正常終了を通知
           delete_request("running_job")
-          puts "Encode job for request##{@request_id} sucessfully finished."
+          puts "Encoding job for request##{@request_id} sucessfully finished."
         end
       end
     end

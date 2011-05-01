@@ -4,18 +4,27 @@
     {
       "name": "DBEE::Job::Download",
       "args": {
-        "url": "http://projects.tsuntsun.net/~nabeken/oreimo-small.ts"
+        "base_url": "http://192.168.5.3/"
       }
     },
     {
       "name": "DBEE::Job::Encode::IPAD",
       "args": {}
+    },
+    {
+      "name": "DBEE::Job::Upload::S3",
+      "args": {}
+    },
+    {
+      "name": "DBEE::Job::Notification",
+      "args": {
+        "to": "nabeken.ipad@tknetworks.org"
+      }
     }
   ],
   "program": {
-    "name": "マギカ",
+    "name": "まどかマギカ",
     "ch": "TBS",
-    "filename": "magic_magica.ts",
-    "checksum.SHA1": "aa"
+    "filename": "まどかテスト.ts"
   }
 }

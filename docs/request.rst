@@ -61,7 +61,22 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
           }
         }
 
-2. リクエストをPOSTで受け取ったRequest APIはrun_listに基づいてジョブをenqueueする。
+2. リクエストをPOSTで受けとったRequest APIはまず素材ファイルのメタデータを生成するジョブ(DBEE::Job::GenerateMetadata)を
+   run_listへ追加し "metadata" キューへenqueueする。
+
+   具体的には:
+
+   a) 以下のJSONをファイル名.jsonで生成する ::
+
+      {
+        "filename": "filename.ts",
+        "size": filesize,
+        "SHA256": SHA256,
+        "mtime": aaaaa,
+        "ctime": aaaaa,
+      }
+
+3. リクエストをPOSTで受け取ったRequest APIはrun_listに基づいてジョブをenqueueする。
 
    具体的には:
 

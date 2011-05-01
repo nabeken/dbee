@@ -20,7 +20,7 @@ DbeE リクエスト管理API
 DbeE キュー管理API
     ジョブ修正、ジョブ削除、ジョブ一覧取得用のRESTful APIを提供する。
 
-DbeE materials API
+DbeE material API
     素材動画のダウンロード用のRESTful APIを提供する。
 
 DbeE Storage API

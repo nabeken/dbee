@@ -4,6 +4,7 @@ module DBEE
   module Config
     API_URL = "http://192.168.5.3:9393"
     REQUEST_REDIS_HKEY = "request"
+    MATERIAL_DIR = "/srv/storage/recordings"
 
     module Encode
       PRESET   = File.expand_path(File.dirname(__FILE__) + '/sample/libx264-IS01.ffpreset')
@@ -18,6 +19,12 @@ module DBEE
         /テレビ朝日/   => "1064"
       }
       OUTPUT_DIR = "/tmp/encode"
+    end
+
+    module Upload
+      AMAZON_ACCESS_KEY_ID = ENV['AMAZON_ACCESS_KEY_ID'] || 'your access key'
+      AMAZON_SECRET_ACCESS_KEY = ENV['AMAZON_SECRET_ACCESS_KEY'] || 'your secret key'
+      UPLOAD_BUCKET = 'dbee'
     end
   end
 end
