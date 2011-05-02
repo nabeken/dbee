@@ -165,6 +165,22 @@ describe 'DBEE Request API App' do
     last_response.status.should == 400
   end
 
+  it "puts requester nil and gets 404" do
+    get "/#{@successed_request[:request_id]}/requester"
+    last_response.should be_ok
+    requester = JSON.parse(last_response.body)
+
+    put "/#{@successed_request[:request_id]}/requester",
+        {"requester" => nil}.to_json
+    last_response.should be_ok
+    get "/#{@successed_request[:request_id]}/requester"
+    last_response.status.should == 404
+
+    # 元のrequesterへ戻す
+    put "/#{@successed_request[:request_id]}/requester", requester.to_json
+    last_response.should be_ok
+  end
+
   it "puts successed request's running_job using request id" do
     get "/#{@successed_request[:request_id]}"
     last_response.should be_ok
@@ -200,6 +216,22 @@ describe 'DBEE Request API App' do
     put "/#{@successed_request[:request_id]}/running_job",
         {"requester" => "shiho.tokyo"}.to_json
     last_response.status.should == 400
+  end
+
+  it "puts request's running_job nil and gets 404 not found" do
+    get "/#{@successed_request[:request_id]}/running_job"
+    running_job = JSON.parse(last_response.body)
+    put "/#{@successed_request[:request_id]}/running_job",
+        {"running_job" => nil}.to_json
+    last_response.should be_ok
+
+    get "/#{@successed_request[:request_id]}/running_job"
+    last_response.status.should == 404
+
+    # もとのrunning_jobに戻す
+    put "/#{@successed_request[:request_id]}/running_job",
+        running_job.to_json
+    last_response.should be_ok
   end
 
   it "deletes successed request's running_job using request it" do
