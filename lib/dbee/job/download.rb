@@ -62,7 +62,7 @@ module DBEE
         puts "Calculating SHA256 for #{download_file}...."
         digest = Digest::SHA256.new
         File.open(download_file, 'r') do |f|
-          buf = ''
+          buf = String.new
           while f.read(1024 * 8, buf)
             digest << buf
           end

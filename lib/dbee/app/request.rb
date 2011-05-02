@@ -27,9 +27,11 @@ module DBEE
       end
 
       get '/' do
-        all_requests = Resque.redis.hgetall(DBEE::Config::REQUEST_REDIS_HKEY)
+        all_requests = Resque.redis.hgetall(DBEE::Config::REQUEST_REDIS_HKEY).values.map! do |v|
+          JSON.parse(v)
+        end
         content_type :json
-        all_requests.values.to_json
+        {:requests => all_requests}.to_json
       end
 
       post '/' do
@@ -102,6 +104,8 @@ module DBEE
         dbee_request.keys.each do |k|
           requested[k] = dbee_request[k]
         end
+
+        # レスポンスとして更新されたJSONを返す
         Resque.redis.hset(DBEE::Config::REQUEST_REDIS_HKEY, params[:id], JSON.unparse(requested))
         content_type :json
         Resque.redis.hget(DBEE::Config::REQUEST_REDIS_HKEY, params[:id])
