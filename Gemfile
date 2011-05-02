@@ -8,4 +8,6 @@ group :test do
   gem 'resque'
   gem 'httpclient'
   gem 'facter'
+  gem 'right_aws'
+  gem 'pony'
 end
