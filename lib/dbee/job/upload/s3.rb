@@ -53,11 +53,14 @@ module DBEE
               :data   => File.open(upload_file, "r")
             )
 
-            _public_link = URI.parse(s3.interface.create_bucket_link(upload_bucket, key))
-            public_link = "#{_public_link.scheme}://#{_public_link.host}/#{key}"
+            # expired after a day
+            public_link = s3.interface.get_link(upload_bucket, key)
+            #public_link = URI.parse(upload_bucket.key(key, true).first.public_link)
+            #public_link = "#{_public_link.scheme}://#{_public_link.host}/#{key}"
+            etag = response["etag"].gsub(/^\[\"\\"(.*)\\\""\]$/) { $1 }
 
             puts "MD5: #{output["MD5"]}"
-            puts "ETAG: #{response["etag"]}"
+            puts "ETAG: #{etag}"
 
             # 終了処理
             request["run_list"][0]["output"]["url"] = public_link
