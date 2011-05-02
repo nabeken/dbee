@@ -22,7 +22,7 @@ module DBEE
             ffmpeg_args << " -fpre #{DBEE::Config::Encode::PRESET} -sameq"
             ffmpeg_args << " -s #{@size}"
             ffmpeg_args << " -aspect 16:9"
-            ffmpeg_args << " -bufsize 1400k -maxrate 14000k -acodec libfaac"
+            ffmpeg_args << " -bufsize 1400k -maxrate 12000k -acodec libfaac"
             ffmpeg_args << " -ar 48000 -ac 2 -ab 128k -vsync 1"
 
             if Facter.kernel == "FreeBSD"
