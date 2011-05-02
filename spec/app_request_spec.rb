@@ -3,8 +3,9 @@
 require File.dirname(__FILE__) + '/spec_helper'
 require 'dbee/app/request'
 
-describe 'DBEE Requedt API App' do
+describe 'DBEE Request API App' do
   before(:all) do
+    @posted_data = {:requests => []}
     @app = DBEE::App::Request
     # 成功したリクエストIDを保存して後のテストで使う
     @successed_request = {}
@@ -14,7 +15,7 @@ describe 'DBEE Requedt API App' do
         {
           "name" => "DBEE::Job::Download",
           "args" => {
-            "url" => "http://example.org/hoge.ts"
+            "base_url" => "http://example.org/"
           }
         },
         {
@@ -26,12 +27,28 @@ describe 'DBEE Requedt API App' do
         "name"          => "まどか",
         "ch"            => "TBS",
         "filename"      => "magica_madoka.ts",
-        "checksum.SHA1" => "aaaa"
       }
     }
+
+    initialize_redis
+  end
+
+  def initialize_redis
+    Resque.redis.hkeys("request").each do |k|
+      Resque.redis.hdel("request", k)
+    end
+    Resque.redis.del("request_id")
   end
 
   def initialize_posted_request(data, request_id)
+    # 素材のメタデータ生成ジョブを追加
+    run_list = [
+      {
+        "name"   => "DBEE::Job::GenerateMetadata",
+        "args"   => {},
+      }
+    ]
+    data["run_list"] = run_list + data["run_list"]
     # POST時にoutputを初期化し、request_idが振られる
     data["run_list"].each do |j|
       j["output"] = {}
@@ -39,11 +56,41 @@ describe 'DBEE Requedt API App' do
     data["request_id"] = request_id.to_i
   end
 
+  it "posts valid JSON and gets same json" do
+    data = @json_data.dup
+    post '/', data.to_json
+    last_response.status.should == 303
+    request_id = last_response.headers["Location"].split('/').last
+    initialize_posted_request(data, request_id)
 
-  it "says test" do
+    get "/#{request_id}"
+    @successed_request[:request_id] = request_id
+    @successed_request[:json] = last_response.body
+    @posted_data[:requests].push JSON.parse(last_response.body)
+    last_response.should be_ok
+    JSON.parse(last_response.body).should == JSON.parse(data.to_json)
+  end
+
+  it "puts JSON using request id and gets updated json" do
+    data = @json_data.dup
+    post '/', data.to_json
+    last_response.status.should == 303
+    request_id = last_response.headers["Location"].split('/').last
+    initialize_posted_request(data, request_id)
+
+    data["requester"] = "rika.tokyo.tknetworks.org"
+    data["program"]["name"] = "まどか☆マギカ"
+
+    put "/#{request_id}", data.to_json
+    @posted_data[:requests].push JSON.parse(last_response.body)
+    last_response.should be_ok
+    JSON.parse(last_response.body).should == JSON.parse(data.to_json)
+  end
+
+  it "gets two request's array" do
     get '/'
     last_response.should be_ok
-    last_response.body.should == "test"
+    JSON.parse(last_response.body).should == JSON.parse(@posted_data.to_json)
   end
 
   it "says request not found" do
@@ -63,36 +110,6 @@ describe 'DBEE Requedt API App' do
     last_response.status.should == 400
   end
 
-  it "posts valid JSON and gets same json" do
-    data = @json_data.dup
-    post '/', data.to_json
-    last_response.status.should == 303
-    request_id = last_response.headers["Location"].split('/').last
-    initialize_posted_request(data, request_id)
-
-    get "/#{request_id}"
-    @successed_request[:request_id] = request_id
-    @successed_request[:json] = last_response.body
-    last_response.should be_ok
-    JSON.parse(last_response.body).should == JSON.parse(data.to_json)
-  end
-
-  it "puts JSON using request id and gets updated json" do
-    data = @json_data.dup
-    post '/', data.to_json
-    last_response.status.should == 303
-    request_id = last_response.headers["Location"].split('/').last
-
-    data["requester"] = "rika.tokyo.tknetworks.org"
-    data["program"]["name"] = "まどか☆マギカ"
-
-    put "/#{request_id}", data.to_json
-
-    initialize_posted_request(data, request_id)
-
-    last_response.should be_ok
-    JSON.parse(last_response.body).should == JSON.parse(data.to_json)
-  end
 
   it "gets successed request JSON using request id" do
     get "/#{@successed_request[:request_id]}"

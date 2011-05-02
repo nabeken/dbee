@@ -8,6 +8,8 @@ require 'sinatra'
 require 'rack/test'
 require 'rspec'
 require 'rspec/autorun'
+require 'rspec/mocks'
+require 'digest/sha1'
 load File.dirname(__FILE__) + '/../config.rb'
 
 set :environment, :test
