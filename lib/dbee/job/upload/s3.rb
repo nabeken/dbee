@@ -53,14 +53,15 @@ module DBEE
               :data   => File.open(upload_file, "r")
             )
 
-            # expired after a day
-            public_link = s3.interface.get_link(upload_bucket, key)
-            #public_link = URI.parse(upload_bucket.key(key, true).first.public_link)
-            #public_link = "#{_public_link.scheme}://#{_public_link.host}/#{key}"
+            # expired after a day (86400s)
+            public_link = s3.interface.get_link(upload_bucket, key, 86400)
             etag = response["etag"].gsub(/^\[\"\\"(.*)\\\""\]$/) { $1 }
 
-            puts "MD5: #{output["MD5"]}"
-            puts "ETAG: #{etag}"
+            # MD5が不一致なら例外
+            if output["MD5"] != etag
+              raise "MD5 checksum does not match. " +
+                    "expected: #{output["MD5"]}, got: #{etag}"
+            end
 
             # 終了処理
             request["run_list"][0]["output"]["url"] = public_link
