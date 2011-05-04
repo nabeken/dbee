@@ -43,8 +43,9 @@ module DBEE
           config.dir = "iPad"
           config.set_programid
 
-          unless system("ffmpeg" + config.get_cmd + " >/dev/null 2>&1")
+          unless system("ffmpeg" + config.get_cmd + "\"" + config.output + "\"" + " >/dev/null 2>&1")
             # ffmpegが失敗した場合
+            File.unlink(config.output)
             request["running_job"] = nil
             put_request(request)
             raise "Request #{@request_id} failed."
