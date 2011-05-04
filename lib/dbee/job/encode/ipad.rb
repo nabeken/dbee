@@ -41,7 +41,6 @@ module DBEE
           config.source = source
           config.size = "1280x720"
           config.dir = "iPad"
-          config.set_programid
 
           unless system("ffmpeg" + config.get_cmd + "\"" + config.output + "\"" + " >/dev/null 2>&1")
             # ffmpegが失敗した場合

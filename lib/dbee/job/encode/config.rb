@@ -8,56 +8,52 @@ module DBEE
   module Job
     module Encode
       class Config
-        attr_accessor :source, :size, :dir, :program_id, :save_dir
+        attr_accessor :source, :size, :dir, :save_dir
         attr_reader :output
 
         def initialize
           @dir = "default"
           @program_id = ""
+          @cmd_format = "-y -i \"%s\" -f mp4 -vcodec libx264 " +
+                        "-fpre %s -s %s -aspect 16:9 " +
+                        "-bufsize 1400k -maxrate 10000k -acodec libfaac " +
+                        "-ar 48000 -ac 2 -ab 128k -vsync 1 -threads %s"
+        end
+
+        def get_processor_count
+          if Facter.kernel == "FreeBSD"
+            processorcount = `sysctl -n hw.ncpu`.strip
+          else
+            processorcount = Facter.processorcount
+          end
+          processorcount
+        end
+
+        def get_programid
+          program_id = DBEE::Config::Encode::PROGRAM_ID.find { |key, val| key.match(@source) }
+          # 何もマッチしなかった場合はデフォルトへfallback
+          program_id.nil? ? nil : program_id.last
+        end
+
+        def output
+          "#{save_dir}#{File.basename(source, '.ts')}.m4v"
+        end
+
+        def save_dir
+          "#{DBEE::Config::Encode::OUTPUT_DIR}/#{dir}/"
         end
 
         def get_cmd
-            ffmpeg_args =  " -y -i \"#{@source}\""
-            ffmpeg_args << " -f mp4 -vcodec libx264"
-            ffmpeg_args << " -fpre #{DBEE::Config::Encode::PRESET} -sameq"
-            ffmpeg_args << " -s #{@size}"
-            ffmpeg_args << " -aspect 16:9"
-            ffmpeg_args << " -bufsize 1400k -maxrate 10000k -acodec libfaac"
-            ffmpeg_args << " -ar 48000 -ac 2 -ab 128k -vsync 1"
+          format_args = [@source, DBEE::Config::Encode::PRESET, @size, get_processor_count]
 
-            if Facter.kernel == "FreeBSD"
-              processorcount = `sysctl -n hw.ncpu`.strip
-            else
-              processorcount = Facter.processorcount
-            end
-            ffmpeg_args << " -threads #{processorcount}"
-
-            unless @program_id.empty?
-              ffmpeg_args << " -programid #{@program_id} "
-            end
-
-            # 一時ファイルへ保存する
-            FileUtils.mkdir_p(save_dir) unless File.exists?(save_dir)
-            ffmpeg_args
+          unless get_programid.nil?
+            @cmd_format << " -programid %s"
+            format_args.push(get_programid)
           end
 
-          def output
-            "#{save_dir}#{File.basename(source, '.ts')}.m4v"
-          end
+          @cmd_format % format_args
+        end
 
-          def save_dir
-            "#{DBEE::Config::Encode::OUTPUT_DIR}/#{dir}/"
-          end
-
-          def set_programid
-            @program_id = DBEE::Config::Encode::PROGRAM_ID.find { |key, val| key.match(@source) }
-            # 何もマッチしなかった場合はデフォルトへfallback
-            if @program_id.nil?
-              @program_id = ""
-            else
-              @program_id.last
-            end
-          end
       end
     end
   end
