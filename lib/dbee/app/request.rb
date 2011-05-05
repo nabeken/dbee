@@ -24,6 +24,17 @@ module DBEE
             scope.const_get(const_name)
           }
         end
+
+        def get_queue_prefix(classname)
+          case classname
+          when 'DBEE::Job::GenerateMetadata'
+            "metadata_"
+          when 'DBEE::Job::Upload::S3'
+            "upload_"
+          else
+            ''
+          end
+        end
       end
 
       get '/' do
@@ -45,9 +56,9 @@ module DBEE
         end
 
         # 全要素が揃っているか確認
-        unless validate_request(dbee_request, %w(requester run_list program))
+        unless validate_request(dbee_request, %w(requester run_list program material_node))
           # 要素が揃っていないのでacceptしない
-          halt 400, "Request at least needs 'requester', 'run_list', 'program' params\n"
+          halt 400, "Request at least needs 'requester', 'run_list', 'program', 'material_node' params\n"
         end
 
         # run_list内のoutputを初期化する
@@ -77,6 +88,14 @@ module DBEE
         # run_listをshiftし次に実行するジョブ名を取得
         run_list = dbee_request["run_list"].shift
         next_job = get_class_name(run_list["name"])
+
+        # GenerateMetadataならmaterial_nodeのキューへ入れる
+        if next_job == DBEE::Job::GenerateMetadata
+          queue_prefix = get_queue_prefix(next_job.to_s)
+          DBEE::Job::GenerateMetadata.instance_variable_set(
+            :@host_based_queue, "#{queue_prefix}#{dbee_request["material_node"]}".to_sym
+          )
+        end
 
         # エンキューする
         Resque.enqueue(next_job, request_id, run_list["name"], run_list["args"])
@@ -210,8 +229,9 @@ module DBEE
             # 次のキューは今のジョブと同じノードにするかどうか
             if job["output"]["next_same_node"]
               halt 400, "worker required" if requested["worker"].nil?
+              queue_prefix = get_queue_prefix(next_job_class.to_s)
               next_job_class.instance_variable_set(
-                :@host_based_queue, requested["worker"].to_sym
+                :@host_based_queue, "#{queue_prefix}#{requested["worker"]}".to_sym
               )
             end
             Resque.enqueue(next_job_class,

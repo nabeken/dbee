@@ -8,8 +8,11 @@ module DBEE
   module Job
     class GenerateMetadata
       extend Job
-      @queue = :metadata
-      attr_accessor :request_id, :request_url, :http
+      attr_accessor :request_id, :request_url, :http, :hostbased_queue
+
+      def self.queue
+        @host_based_queue || :metadata
+      end
 
       def self.perform(request_id, running_job, args, output = nil)
         @request_id = request_id
@@ -31,11 +34,13 @@ module DBEE
         unless File.exist?(filename)
           request["running_job"] = nil
           put_request(request)
-          raise "File not found"
+          raise "material not found"
         end
 
         # すでにmetadataが生成済みならそのまま終了
-        unless File.exist?("#{filename}.json")
+        if File.exist?("#{filename}.json")
+          puts "metadata for #{basename} found. skipped...."
+        else
           puts "Calculating SHA256 for #{basename}...."
           digest = Digest::SHA256.new
           File.open(filename, 'r') do |f|
