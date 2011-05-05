@@ -46,6 +46,11 @@ describe 'DBEE Download Job' do
     end
   end
 
+  # 生成したjsonを消しておく
+  after(:all) do
+    File.unlink("#{@original_file}.json")
+  end
+
   it "performs downloading successfully" do
     # まずリクエストをJSONにして直接Redisへ入れる
     request_id  = @json_download_job["request_id"]

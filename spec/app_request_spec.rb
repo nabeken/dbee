@@ -11,6 +11,7 @@ describe 'DBEE Request API App' do
     @successed_request = {}
     @json_data = {
       "requester" => "shiho-dev.dev",
+      "material_node" => "shiho-dev.dev",
       "run_list" => [
         {
           "name" => "DBEE::Job::Download",
@@ -36,6 +37,9 @@ describe 'DBEE Request API App' do
   def initialize_redis
     Resque.redis.hkeys("request").each do |k|
       Resque.redis.hdel("request", k)
+    end
+    Resque.redis.keys("queue:*").each do |k|
+      Resque.redis.del(k)
     end
     Resque.redis.del("request_id")
   end
@@ -69,6 +73,9 @@ describe 'DBEE Request API App' do
     @posted_data[:requests].push JSON.parse(last_response.body)
     last_response.should be_ok
     JSON.parse(last_response.body).should == JSON.parse(data.to_json)
+
+    # material_node別のキューが作成されているか
+    Resque.redis.keys("*").should include("queue:metadata_#{data["material_node"]}")
   end
 
   it "puts JSON using request id and gets updated json" do
@@ -267,5 +274,34 @@ describe 'DBEE Request API App' do
 
     delete "/#{request_id}/running_job"
     last_response.status.should == 303
+  end
+
+  it "enqueues upload job in hostbased queue" do
+    data = @json_data.dup
+    data["run_list"] = [
+      {
+        "name" => "DBEE::Job::Upload::S3",
+        "args" => {}
+      }
+    ]
+    post '/', data.to_json
+    last_response.status.should == 303
+    request_id = last_response.headers["Location"].split('/').last
+
+    get "/#{request_id}"
+    last_response.should be_ok
+
+    # GenerateMetadataジョブをやりすごす
+    data2 = JSON.parse(last_response.body)
+    data2["worker"] = "shiho-dev.dev"
+    data2["running_job"] = "DBEE::Job::GenerateMetadata"
+    data2["run_list"][0]["output"]["next_same_node"] = true
+    put "/#{request_id}", data2.to_json
+    last_response.should be_ok
+
+    delete "/#{request_id}/running_job"
+    last_response.status.should == 303
+
+    Resque.redis.keys("*").should include("queue:upload_#{data2["worker"]}")
   end
 end
