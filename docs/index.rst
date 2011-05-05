@@ -15,14 +15,14 @@ Welcome to DbeE's documentation!
 用語の定義
 ==========
 
-master (1つ)
+master node (1つ)
     Redisが動作しているノード。エンコード後の後処理を担当するノード。
 
-materials (複数)
+material node (複数)
     素材を保持しているノード
 
-storage (複数)
-    成果物を保持しているノード
+storage node (複数)
+    成果物を保持しているノード。通常はS3互換環境。
 
 worker (複数)
-    素材をmaterialsノードからダウンロードし、エンコードし、成果物をstorageノードへアップロードするノード
+    素材をmaterialノードからダウンロードし、エンコードし、成果物をstorageノードへアップロードするノード

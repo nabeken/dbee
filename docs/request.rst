@@ -44,6 +44,7 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
 
         {
           "requester": リクエストをしたホスト名,
+          "material_node": 素材を保持しているノード
           "run_list": [
             {
               "name": class1,
@@ -62,7 +63,7 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
         }
 
 2. リクエストをPOSTで受けとったRequest APIはまず素材ファイルのメタデータを生成するジョブ(DBEE::Job::GenerateMetadata)を
-   run_listへ追加し "metadata" キューへenqueueする。
+   run_listへ追加し "metadata_${hostname}" キューへenqueueする。
 
    具体的には:
 
@@ -72,8 +73,8 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
         "filename": "filename.ts",
         "size": filesize,
         "SHA256": SHA256,
-        "mtime": aaaaa,
-        "ctime": aaaaa,
+        "mtime": mtime,
+        "ctime": ctime
       }
 
 3. リクエストをPOSTで受け取ったRequest APIはrun_listに基づいてジョブをenqueueする。
@@ -129,6 +130,10 @@ Redis上の扱い
 =============
 
 - リクエストIDの管理
+
+  - key resque:request_id
+  - hkey resque:request
+
 - 各リクエストの情報管理
 
   - running_jobの管理  (実行中のジョブ)

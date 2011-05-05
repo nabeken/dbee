@@ -1,5 +1,6 @@
 {
   "requester": "rika.tokyo.tknetworks.org",
+  "material_node": "shiho-dev.dev",
   "run_list": [
     {
       "name": "DBEE::Job::Download",

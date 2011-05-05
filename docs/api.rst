@@ -11,21 +11,17 @@ API概要
 
 APIは4つのコンポーネントから構成される。
 
-DbeE Webインターフェース
+DbeE Webインターフェース (未実装)
     DbeE自身の設定や自身のRESTful APIを使った管理画面を提供する。
 
-DbeE リクエスト管理API
+DbeE リクエスト管理API (実装済み)
     DbeEの分散バッチエンコードリクエストを管理するためのRESTful APIを提供する。
 
-DbeE キュー管理API
+DbeE キュー管理API (未実装)
     ジョブ修正、ジョブ削除、ジョブ一覧取得用のRESTful APIを提供する。
 
-DbeE material API
-    素材動画のダウンロード用のRESTful APIを提供する。
-
-DbeE Storage API
-    成果物のアップロード用のS3互換APIを提供する。内部はboardwalkを使用している。
-    boardwalkはRackableではないので独立したサーバにする。
+DbeE Storage API (S3実装そのまま)
+    成果物のアップロード用のS3(互換)環境。SwiftあるいはAWSのS3をそのまま使う。
 
 RESTful APIはすべてJSON形式で情報を交換する。
 
@@ -38,8 +34,6 @@ DBEE::App::Request
 ==================
 
 DbeEの分散バッチエンコードリクエストを管理するためのRESTful API。
-
-一応、コンフリクトしないようにレスポンス毎にハッシュ値を入れておく。
 
 公開リソース
 ------------

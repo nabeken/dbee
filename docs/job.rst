@@ -117,10 +117,6 @@ masterが担当 (分散しない)
 そのため、1つ前のジョブの成果物の所在を得る必要がある。また、自身の成果物の所在を次のジョブへ通知
 する必要がある。
 
-ジョブは引数から情報を得るのでジョブが完了したら自身のジョブの成果物の在処を次のジョブの引数へ足す？
-次のジョブに入れてしまうと完了したジョブの情報を見ても成果物に関する情報がない。
-なので、やはり自身のジョブ情報に入れる。
-
 ジョブが完了するとoutput(ハッシュ)に成果物についての情報を格納する。
 
 Resqueからは以下のようにして引数を渡す。 ::
@@ -128,4 +124,12 @@ Resqueからは以下のようにして引数を渡す。 ::
     Resque.enqueue(DBEE::Job::Encode, request_id, next_job_name, next_job["args"], job["output"])
 
 Resqueはenqueue時に第1引数のインスタンス変数 @queue もしくは特異メソッド queue を呼びだす。
-よって、enqueue前にinstance_variable_set(:@host_based_queue, Factor.fqdn) をする。
+ホスト名を指定してenqueueする場合は以下を実装する。 ::
+
+    attr_accessor :hostbased_queue
+    
+    def self.queue
+      @host_based_queue || :encode
+    end
+
+そして ``Resque.enqueue`` 前に ``DBEE::Job::Encode.instance_variable_set(:@host_based_queue, Factor.fqdn)`` をする。
