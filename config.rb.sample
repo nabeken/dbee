@@ -3,6 +3,7 @@
 module DBEE
   module Config
     API_URL = "http://192.168.5.3:9393"
+    MATERIAL_BASE_URL = "http://192.168.5.3/"
     REQUEST_REDIS_HKEY = "request"
     MATERIAL_DIR = "/srv/storage/recordings"
 
