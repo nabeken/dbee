@@ -11,4 +11,5 @@ group :test do
   gem 'facter'
   gem 'right_aws'
   gem 'pony'
+  gem 'thin'
 end
