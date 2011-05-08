@@ -66,6 +66,7 @@ module DBEE
         proxy = ENV['HTTP_PROXY'] || ENV['http_proxy'] || nil
         http = HTTPClient.new(proxy)
         http.set_auth(Request.request_url, DBEE::Config::HTTP_USER, DBEE::Config::HTTP_PASSWORD)
+        http.ssl_config.add_trust_ca(DBEE::Config::CA_DIR)
         http
       end
 
