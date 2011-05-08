@@ -3,7 +3,6 @@ $LOAD_PATH.unshift File.dirname(__FILE__) + '/../lib'
 require 'resque'
 require 'dbee/job'
 require 'dbee/enqueuer'
-require 'facter'
 load File.dirname(__FILE__) + '/../config.rb'
 
 #
@@ -30,9 +29,9 @@ end
 enqueuer = DBEE::Enqueuer.new(input)
 
 begin
-  request_id = enqueuer.post_request
-  puts "successfully enqueued #{enqueuer.input.basename}. Request ID: #{request_id}"
-  puts "Request: #{DBEE::Config::API_URL}/request/#{request_id}"
+  response = enqueuer.post_request
+  puts "successfully enqueued #{enqueuer.input.basename} in ##{response.request_id}"
+  puts "URL: #{response.url}"
   exit 0
 rescue
   puts $!
