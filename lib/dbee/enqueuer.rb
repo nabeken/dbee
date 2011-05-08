@@ -1,12 +1,13 @@
+require 'dbee/request'
+require 'facter'
+
 module DBEE
   class Enqueuer
     attr_accessor :request_id, :http, :input, :material
 
     def initialize(input)
       proxy = ENV['HTTP_PROXY'] || ENV['http_proxy'] || nil
-      @http = HTTPClient.new(proxy)
       @input = input
-      @request_url = "#{DBEE::Config::API_URL}/request/"
       # ダウンロードジョブの関係上、任意の場所に置いたまま処理はできないので
       # MATERIAL_DIR以下にない場合はシンボリックリンクを張る
       @material = Pathname.new("#{DBEE::Config::MATERIAL_DIR}/#{input.basename}")
@@ -50,15 +51,8 @@ module DBEE
       }.to_json
     end
 
-    # 成功時はrequest_idを返す
     def post_request
-      response = @http.post("#{@request_url}", get_request_json)
-
-      # 成功時は303 see otherが返る
-      if response.status != 303
-        raise "failed to POST request. got #{response.status}"
-      end
-      response.headers["Location"].split('/').last
+      Request.post(get_request_json)
     end
   end
 end

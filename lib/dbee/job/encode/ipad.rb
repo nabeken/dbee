@@ -26,7 +26,6 @@ module DBEE
           # Request APIへジョブ開始を通知する
           # running_job, workerを更新する
           worker = Facter.fqdn
-          #running_job = "DBEE::Job::Encode::IPAD"
           put_request("running_job", running_job)
           put_request("worker", worker)
 
