@@ -20,7 +20,7 @@ describe 'DBEE Download Job' do
         {
           "name" => "DBEE::Job::Download",
           "args" => {
-            "base_url" => "http://192.168.5.3:9393/coverage/assets/0.4.4/"
+            "base_url" => "http://127.0.0.1:9393/coverage/assets/0.4.4/"
           },
           "output" => {}
         }
@@ -70,7 +70,7 @@ describe 'DBEE Download Job' do
 
   it "performs downloading file does not exists" do
     request = @json_download_job.dup
-    request["run_list"][0]["args"]["base_url"] = "http://192.168.5.3:9393/coverage/"
+    request["run_list"][0]["args"]["base_url"] = "http://127.0.0.1:9393/coverage/"
     request["program"]["filename"] = "notfound.jpeg"
     request_id  = request["request_id"]
     running_job = request["running_job"]
@@ -92,7 +92,7 @@ describe 'DBEE Download Job' do
 
   it "performs downloading w/ metadata available, material does not exists" do
     request = @json_download_job.dup
-    request["run_list"][0]["args"]["base_url"] = "http://192.168.5.3:9393/coverage/assets/0.4.4/"
+    request["run_list"][0]["args"]["base_url"] = "http://127.0.0.1:9393/coverage/assets/0.4.4/"
     request["program"]["filename"] = "favicon.png"
     request_id  = request["request_id"]
     running_job = request["running_job"]
@@ -115,7 +115,7 @@ describe 'DBEE Download Job' do
 
   it "performs downloading w/ material does not match SHA256" do
     request = @json_download_job.dup
-    request["run_list"][0]["args"]["base_url"] = "http://192.168.5.3:9393/coverage/assets/0.4.4/"
+    request["run_list"][0]["args"]["base_url"] = "http://127.0.0.1:9393/coverage/assets/0.4.4/"
     request["program"]["filename"] = "favicon.png"
     request_id  = request["request_id"]
     running_job = request["running_job"]
