@@ -6,9 +6,6 @@ require 'fileutils'
 require 'pony'
 require 'nkf'
 
-# initialize facter
-Facter.to_hash
-
 module DBEE
   module Job
     class Notification
@@ -16,18 +13,11 @@ module DBEE
       @queue = :notification
 
       def self.perform(request_id, running_job, args, output = nil)
-        @request_id = request_id
-        @request_url = "#{DBEE::Config::API_URL}/request/#{@request_id}"
-        proxy = ENV['HTTP_PROXY'] || ENV['http_proxy'] || nil
-        @http = HTTPClient.new(proxy)
+        request = Request.new(request_id)
+        worker = Facter.value(:fqdn)
+        request.start_job(:worker => worker, :running_job => running_job)
 
-        # Request APIへジョブ開始を通知する
-        # running_job, workerを更新する
-        worker = Facter.fqdn
-        put_request("running_job", running_job)
-        put_request("worker", worker)
-
-        request = get_request
+        request_data = request.get.body
 
         Pony.mail(
             :from    => 'nabeken@tknetworks.org',
@@ -37,10 +27,10 @@ module DBEE
                 "Mime-Version" => "1.0",
                 "Content-Transfer-Encoding" => "7bit"
             },
-            :subject => "[DBEE]#{request["program"]["filename"]}のエンコードが完了しました",
+            :subject => "[DBEE]#{request_data["program"]["filename"]}のエンコードが完了しました",
             :body    => NKF.nkf('-Wj',
 "
-#{request["program"]["filename"]}のエンコード、アップロードが完了しました。
+#{request_data["program"]["filename"]}のエンコード、アップロードが完了しました。
 #{output["url"]}
 
 エンコード開始時刻:

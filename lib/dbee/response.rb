@@ -9,7 +9,12 @@ module DBEE
     # HTTPClientのresponse
     def initialize(response)
       @http_response = response
-      @request_id = headers["Location"].split('/').last
+      # request_idはLocationヘッダかcontentから取り出す
+      if response.headers["Location"].nil?
+        @request_id = JSON.parse(response.content)["request_id"]
+      else
+        @request_id = response.headers["Location"].split('/').last
+      end
     end
 
     def status
@@ -17,7 +22,7 @@ module DBEE
     end
 
     def body
-      @http_response.body
+      JSON.parse(@http_response.content)
     end
 
     def headers

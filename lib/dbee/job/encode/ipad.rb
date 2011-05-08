@@ -3,9 +3,6 @@ require 'facter'
 require 'digest/md5'
 require 'digest/sha2'
 
-# initialize facter
-Facter.to_hash
-
 module DBEE
   module Job
     module Encode
@@ -18,19 +15,11 @@ module DBEE
         end
 
         def self.perform(request_id, running_job, args, output)
-          @request_id = request_id
-          @request_url = "#{DBEE::Config::API_URL}/request/#{@request_id}"
-          proxy = ENV['HTTP_PROXY'] || ENV['http_proxy'] || nil
-          @http = HTTPClient.new(proxy)
+          request = Request.new(request_id)
+          worker = Facter.value(:fqdn)
+          request.start_job(:worker => worker, :running_job => running_job)
 
-          # Request APIへジョブ開始を通知する
-          # running_job, workerを更新する
-          worker = Facter.fqdn
-          put_request("running_job", running_job)
-          put_request("worker", worker)
-
-          # Request APIから情報を取得する
-          request = get_request
+          request_data = request.get.body
 
           # 前のジョブの成果物(素材)の場所を取得
           source = output["file"]
@@ -44,9 +33,9 @@ module DBEE
           unless system("ffmpeg" + config.get_cmd + "\"" + config.output + "\"" + " >/dev/null 2>&1")
             # ffmpegが失敗した場合
             File.unlink(config.output)
-            request["running_job"] = nil
-            put_request(request)
-            raise "Request #{@request_id} failed."
+            request_data["running_job"] = nil
+            request.put(request_data)
+            raise "request_data #{request.request_id} failed."
           end
           puts "encode successfully finished"
 
@@ -61,19 +50,19 @@ module DBEE
           end
           puts "...finished."
 
-          # Request APIへ報告する
-          job = request["run_list"].first
+          # request_data APIへ報告する
+          job = request_data["run_list"].first
           job["output"]["MD5"] = digest.hexdigest
           job["output"]["file"] = config.output
           job["output"]["worker"] = worker
           # 次のジョブも同一ノードで実行してほしい
           job["output"]["next_same_node"] = true
           # リクエスト更新
-          put_request(request)
+          request.put(request_data)
 
           # 最後にrunning_jobをDELETEしてジョブの正常終了を通知
-          delete_request("running_job")
-          puts "Encoding job for request##{@request_id} sucessfully finished."
+          request.delete("running_job")
+          puts "Encoding job for request_data##{request.request_id} sucessfully finished."
         end
       end
     end

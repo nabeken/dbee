@@ -117,7 +117,8 @@ module DBEE
         end
         required_keys = %w(requester run_list program)
         unless validate_request(dbee_request, required_keys)
-          halt 400, "Request at least need '#{required_keys.join(", ")}' parameter.\n"
+          halt 400, "Request at least needs '#{required_keys.join(", ")}' parameter.\n" +
+                    "#{dbee_request.inspect}"
         end
         requested = JSON.parse(Resque.redis.hget(DBEE::Config::REQUEST_REDIS_HKEY, params[:id]))
         dbee_request.keys.each do |k|

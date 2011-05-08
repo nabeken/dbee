@@ -4,9 +4,6 @@ require 'fileutils'
 require 'right_aws'
 require 'uri'
 
-# initialize facter
-Facter.to_hash
-
 module DBEE
   module Job
     module Upload
@@ -19,24 +16,17 @@ module DBEE
         end
 
         def self.perform(request_id, running_job, args, output = nil)
-          @request_id = request_id
-          @request_url = "#{DBEE::Config::API_URL}/request/#{@request_id}"
-          proxy = ENV['HTTP_PROXY'] || ENV['http_proxy'] || nil
-          @http = HTTPClient.new(proxy)
+          request = Request.new(request_id)
+          worker = Facter.value(:fqdn)
+          request.start_job(:worker => worker, :running_job => running_job)
 
-          # Request APIへジョブ開始を通知する
-          # running_job, workerを更新する
-          worker = Facter.fqdn
-          put_request("running_job", running_job)
-          put_request("worker", worker)
-
-          request = get_request
+          request_data = request.get.body
 
           # 成果物が存在していることを確認
           upload_file = output["file"]
           unless File.exist?(upload_file)
-            request["running_job"] = nil
-            put_request(request)
+            request_data["running_job"] = nil
+            request.put(request_data)
             raise "File not found. #{upload_file}"
           end
 
@@ -64,16 +54,16 @@ module DBEE
             end
 
             # 終了処理
-            request["run_list"][0]["output"]["url"] = public_link
-            request["run_list"][0]["output"]["worker"] = worker
-            put_request(request)
+            request_data["run_list"][0]["output"]["url"] = public_link
+            request_data["run_list"][0]["output"]["worker"] = worker
+            request.put(request_data)
 
             # 最後にrunning_jobをDELETEしてジョブの正常終了を通知
-            delete_request("running_job")
-            puts "Uploading job for request##{@request_id} sucessfully finished."
+            request.delete("running_job")
+            puts "Uploading job for request_data##{request.request_id} sucessfully finished."
           rescue
-            request["running_job"] = nil
-            put_request(request)
+            request_data["running_job"] = nil
+            request.put(request_data)
             raise "failed to upload #{output["file"]} to S3. reason: #{$!}"
           end
         end

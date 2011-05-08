@@ -15,25 +15,18 @@ module DBEE
       end
 
       def self.perform(request_id, running_job, args, output = nil)
-        @request_id = request_id
-        @request_url = "#{DBEE::Config::API_URL}/request/#{@request_id}"
-        proxy = ENV['HTTP_PROXY'] || ENV['http_proxy'] || nil
-        @http = HTTPClient.new(proxy)
+        request = Request.new(request_id)
+        worker = Facter.value(:fqdn)
+        request.start_job(:worker => worker, :running_job => running_job)
 
-        # Request APIへジョブ開始を通知する
-        # running_job, workerを更新する
-        worker = Facter.fqdn
-        put_request("running_job", running_job)
-        put_request("worker", worker)
+        request_data = request.get.body
 
-        request = get_request
-
-        basename = request["program"]["filename"]
+        basename = request_data["program"]["filename"]
         filename = Pathname.new("#{DBEE::Config::MATERIAL_DIR}/#{basename}")
 
         unless File.exist?(filename)
-          request["running_job"] = nil
-          put_request(request)
+          request_data["running_job"] = nil
+          request.put(request_data)
           raise "material not found"
         end
 
@@ -67,10 +60,10 @@ module DBEE
         puts "...finished!"
 
         # 次のジョブはどこでもよい
-        request["run_list"][0]["output"]["next_same_node"] = false
+        request_data["run_list"][0]["output"]["next_same_node"] = false
 
         # 最後にrunning_jobをDELETEしてジョブの正常終了を通知
-        delete_request("running_job")
+        request.delete("running_job")
         puts "Generating metadata for #{basename} sucessfully finished."
       end
     end

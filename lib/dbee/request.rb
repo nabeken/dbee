@@ -6,6 +6,7 @@ require 'dbee/response'
 module DBEE
   class Request
     attr_accessor :request_id
+    attr_reader :http
 
     def initialize(request_id = nil)
       @request_id = request_id
@@ -13,7 +14,7 @@ module DBEE
     end
 
     def get
-      response = @http.get(Request.request_url)
+      response = @http.get("#{Request.request_url}/#{@request_id}")
       if response.status != 200
         raise "failed to GET request##{@request_id}. got #{response.status}"
       end
@@ -24,10 +25,10 @@ module DBEE
     # valueがnilでなければ個々のキーを更新する
     def put(request, value = nil)
       unless value.nil?
-        response = @http.put("#{Request.request_url}/#{request}", JSON.unparse({request => value}))
+        response = @http.put("#{Request.request_url}/#{@request_id}/#{request}", JSON.unparse({request => value}))
       else
         # リクエスト全体を更新する
-        response = @http.put(Request.request_url, JSON.unparse(request))
+        response = @http.put("#{Request.request_url}/#{@request_id}", JSON.unparse(request))
       end
       if response.status != 200
         raise "failed to PUT request##{@request_id}. got #{response.status}"
@@ -36,11 +37,16 @@ module DBEE
     end
 
     def delete(key)
-      response = @http.delete("#{Request.request_url}/#{key}")
+      response = @http.delete("#{Request.request_url}/#{@request_id}/#{key}")
       if response.status != 200 and response.status != 303
         raise "failed to DELETE request##{@request_id}. got #{response.status}"
       end
       Response.new(response)
+    end
+
+    def start_job(args)
+      put("running_job", args[:running_job])
+      put("worker", args[:worker])
     end
 
     # POST時はまだrequest_idがないため特異メソッドとして用意し、
@@ -58,7 +64,9 @@ module DBEE
 
       def get_new_http_client
         proxy = ENV['HTTP_PROXY'] || ENV['http_proxy'] || nil
-        HTTPClient.new(proxy)
+        http = HTTPClient.new(proxy)
+        http.set_auth(Request.request_url, DBEE::Config::HTTP_USER, DBEE::Config::HTTP_PASSWORD)
+        http
       end
 
       def request_url

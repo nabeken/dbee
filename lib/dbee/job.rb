@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 
+require 'dbee/request'
 require 'dbee/job/encode/ipad'
 require 'dbee/job/download'
 require 'dbee/job/generate_metadata'
@@ -10,5 +11,6 @@ Encoding.default_internal = "UTF-8" if defined? Encoding
 Encoding.default_external = "UTF-8" if defined? Encoding
 
 module DBEE
-  module Job; end
+  module Job
+  end
 end
