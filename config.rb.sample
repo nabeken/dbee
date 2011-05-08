@@ -6,6 +6,8 @@ module DBEE
     MATERIAL_BASE_URL = "http://192.168.5.3/"
     REQUEST_REDIS_HKEY = "request"
     MATERIAL_DIR = "/srv/storage/recordings"
+    HTTP_USER = "dbee"
+    HTTP_PASSWORD = "dbee"
 
     module Encode
       PRESET   = File.expand_path(File.dirname(__FILE__) + '/sample/libx264-IS01.ffpreset')
