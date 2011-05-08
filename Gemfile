@@ -12,4 +12,6 @@ group :test do
   gem 'right_aws'
   gem 'pony'
   gem 'thin'
+  gem 'rake'
+  gem 'shotgun'
 end
