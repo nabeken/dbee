@@ -1,3 +1,5 @@
+# vim:fileencoding=utf-8
+
 require 'dbee/request'
 require 'facter'
 
@@ -23,14 +25,11 @@ module DBEE
         "material_node" => Facter.value(:fqdn),
         "run_list" => [
           {
-            "name" => "DBEE::Job::Download",
-            "args" => {
-              "base_url" => DBEE::Config::MATERIAL_BASE_URL
-            }
-          },
-          {
             "name" => "DBEE::Job::Encode::IPAD",
-            "args" => {}
+            "args" => {
+              "file"   => @input,
+              "worker" => Facter.value(:fqdn)
+            }
           },
           {
             "name" => "DBEE::Job::Upload::S3",

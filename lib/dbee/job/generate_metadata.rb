@@ -1,3 +1,5 @@
+# vim:fileencoding=utf-8
+
 require 'dbee/job'
 require 'facter'
 require 'fileutils'

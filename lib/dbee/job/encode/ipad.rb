@@ -1,3 +1,5 @@
+# vim:fileencoding=utf-8
+
 require 'dbee/job/encode'
 require 'facter'
 require 'digest/md5'
@@ -30,7 +32,7 @@ module DBEE
           config.size = "1280x720"
           config.dir = "iPad"
 
-          unless system("ffmpeg" + config.get_cmd + "\"" + config.output + "\"" + " >/dev/null 2>&1")
+          unless system("ffmpeg #{config.get_cmd} \"#{config.output}\" >/dev/null 2>&1")
             # ffmpegが失敗した場合
             File.unlink(config.output)
             request_data["running_job"] = nil
