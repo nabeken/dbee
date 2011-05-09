@@ -38,7 +38,7 @@ module DBEE
           digest = Digest::SHA256.new
           File.open(filename, 'r') do |f|
             buf = ''
-            while f.read(1024 * 8, buf)
+            while f.read(1024 * 1024 *  8, buf)
               digest << buf
             end
           end
