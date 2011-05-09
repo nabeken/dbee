@@ -56,11 +56,10 @@ describe 'DBEE Download Job' do
     request_id  = @json_download_job["request_id"]
     running_job = @json_download_job["running_job"]
     args        = @json_download_job["run_list"][0]["args"]
-    output      = @json_download_job["run_list"][0]["output"]
 
     Resque.redis.hset("request", request_id, @json_download_job.to_json)
     proc {
-      DBEE::Job::Download.perform(request_id, running_job, args, output)
+      DBEE::Job::Download.perform(request_id, running_job, args)
     }.should_not raise_error
 
     Digest::SHA1.hexdigest(File.open(@original_file).read).should == Digest::SHA1.hexdigest(
@@ -75,10 +74,9 @@ describe 'DBEE Download Job' do
     request_id  = request["request_id"]
     running_job = request["running_job"]
     args        = request["run_list"][0]["args"]
-    output      = request["run_list"][0]["output"]
     Resque.redis.hset("request", request_id, request.to_json)
     proc {
-      DBEE::Job::Download.perform(request_id, running_job, args, output)
+      DBEE::Job::Download.perform(request_id, running_job, args)
     }.should raise_error
 
     File.exists?(@download_dir + "/#{request["program"]["filename"]}").should be_false
@@ -86,7 +84,7 @@ describe 'DBEE Download Job' do
 
   it "performs downloading w/ invalid request id" do
     proc {
-      DBEE::Job::Download.perform("12345", "DBEE::Job::Download", {}, {})
+      DBEE::Job::Download.perform("12345", "DBEE::Job::Download", {})
     }.should raise_error
   end
 
@@ -97,14 +95,13 @@ describe 'DBEE Download Job' do
     request_id  = request["request_id"]
     running_job = request["running_job"]
     args        = request["run_list"][0]["args"]
-    output      = request["run_list"][0]["output"]
 
     # favicon.pngを保存して一旦削除
     favicon = File.open(@original_file).read
     File.unlink(@original_file)
     Resque.redis.hset("request", request_id, request.to_json)
     proc {
-      DBEE::Job::Download.perform(request_id, running_job, args, output)
+      DBEE::Job::Download.perform(request_id, running_job, args)
     }.should raise_error
 
     # 元に戻す
@@ -120,7 +117,6 @@ describe 'DBEE Download Job' do
     request_id  = request["request_id"]
     running_job = request["running_job"]
     args        = request["run_list"][0]["args"]
-    output      = request["run_list"][0]["output"]
     Resque.redis.hset("request", request_id, request.to_json)
 
     # メタデータ内のSHA256を改変
@@ -131,7 +127,7 @@ describe 'DBEE Download Job' do
     }
 
     proc {
-      DBEE::Job::Download.perform(request_id, running_job, args, output)
+      DBEE::Job::Download.perform(request_id, running_job, args)
     }.should raise_error
   end
 

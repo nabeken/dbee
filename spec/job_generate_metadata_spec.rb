@@ -14,8 +14,8 @@ describe 'DBEE Generating Metadata Job' do
       "request_id" => "1",
       "run_list" => [
         {
-          "name" => "DBEE::Job::GenerateMetadata",
-          "args" => {},
+          "name"   => "DBEE::Job::GenerateMetadata",
+          "args"   => {},
           "output" => {}
         }
       ],
@@ -47,10 +47,9 @@ describe 'DBEE Generating Metadata Job' do
     request_id  = json_job["request_id"]
     running_job = json_job["running_job"]
     args        = json_job["run_list"][0]["args"]
-    output      = json_job["run_list"][0]["output"]
 
     Resque.redis.hset("request", request_id, json_job.to_json)
-    DBEE::Job::GenerateMetadata.perform(request_id, running_job, args, output)
+    DBEE::Job::GenerateMetadata.perform(request_id, running_job, args)
 
     # 生成されたJSONが予め作成したものと一致するか
     generated_metadata = JSON.parse(File.open("#{@original_file}.json", "r").read)
@@ -63,7 +62,6 @@ describe 'DBEE Generating Metadata Job' do
     request_id  = json_job["request_id"]
     running_job = json_job["running_job"]
     args        = json_job["run_list"][0]["args"]
-    output      = json_job["run_list"][0]["output"]
 
     Resque.redis.hset("request", request_id, json_job.to_json)
 
@@ -73,7 +71,7 @@ describe 'DBEE Generating Metadata Job' do
       f.print "HOMUHOMU"
     end
 
-    DBEE::Job::GenerateMetadata.perform(request_id, running_job, args, output)
+    DBEE::Job::GenerateMetadata.perform(request_id, running_job, args)
     File.open("#{@original_file}.json", "r").read.should == "HOMUHOMU"
   end
 
@@ -83,7 +81,6 @@ describe 'DBEE Generating Metadata Job' do
     request_id  = json_job["request_id"]
     running_job = json_job["running_job"]
     args        = json_job["run_list"][0]["args"]
-    output      = json_job["run_list"][0]["output"]
 
     # 存在しないファイル名にする
     json_job["program"]["filename"] = "notfound!!!.ts"
@@ -91,7 +88,7 @@ describe 'DBEE Generating Metadata Job' do
     Resque.redis.hset("request", request_id, json_job.to_json)
 
     proc {
-      DBEE::Job::GenerateMetadata.perform(request_id, running_job, args, output)
+      DBEE::Job::GenerateMetadata.perform(request_id, running_job, args)
     }.should raise_error("material not found")
   end
 end

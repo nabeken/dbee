@@ -19,8 +19,7 @@ describe 'DBEE Notification Job' do
           "name" => "DBEE::Job::Notification",
           "args" => {
             "to" => "rspec@example.org"
-          },
-          "output" => {}
+          }
         }
       ],
       "program" => {
@@ -33,7 +32,6 @@ describe 'DBEE Notification Job' do
     request_id  = json_job["request_id"]
     running_job = json_job["running_job"]
     args        = json_job["run_list"][0]["args"]
-    output      = json_job["run_list"][0]["output"]
 
     # 引数内のToが引数のToと一致すればtrue
     Pony.stub!(:mail) do |arg|
@@ -42,6 +40,6 @@ describe 'DBEE Notification Job' do
     Pony.should_receive(:mail).and_return(true)
 
     Resque.redis.hset("request", request_id, json_job.to_json)
-    DBEE::Job::Notification.perform(request_id, running_job, args, output)
+    DBEE::Job::Notification.perform(request_id, running_job, args)
   end
 end
