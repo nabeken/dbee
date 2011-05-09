@@ -238,8 +238,7 @@ module DBEE
             Resque.enqueue(next_job_class,
                            params[:id],
                            next_job["name"],
-                           next_job["args"],
-                           job["output"])
+                           next_job["args"].merge!(job["output"]))
           end
           Resque.redis.hset(DBEE::Config::REQUEST_REDIS_HKEY, params[:id], JSON.unparse(requested))
           # レスポンス生成

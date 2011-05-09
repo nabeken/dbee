@@ -12,7 +12,7 @@ module DBEE
       extend Job
       @queue = :notification
 
-      def self.perform(request_id, running_job, args, output = nil)
+      def self.perform(request_id, running_job, args)
         request = Request.new(request_id)
         worker = Facter.value(:fqdn)
         request.start_job(:worker => worker, :running_job => running_job)
@@ -31,7 +31,7 @@ module DBEE
             :body    => NKF.nkf('-Wj',
 "
 #{request_data["program"]["filename"]}のエンコード、アップロードが完了しました。
-#{output["url"]}
+#{args["url"]}
 
 エンコード開始時刻:
 エンコード終了時刻:

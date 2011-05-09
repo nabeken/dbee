@@ -14,7 +14,7 @@ module DBEE
         @host_based_queue || :metadata
       end
 
-      def self.perform(request_id, running_job, args, output = nil)
+      def self.perform(request_id, running_job, args)
         request = Request.new(request_id)
         worker = Facter.value(:fqdn)
         request.start_job(:worker => worker, :running_job => running_job)
@@ -44,7 +44,7 @@ module DBEE
           end
 
           # JSONの生成
-          output = {
+          json = {
             "filename" => basename,
             "size"     => filename.size,
             "SHA256"   => digest.hexdigest,
@@ -53,7 +53,7 @@ module DBEE
           }
 
           File.open("#{filename}.json", 'w') do |f|
-            f.puts output.to_json
+            f.puts json.to_json
           end
         end
 

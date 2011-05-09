@@ -11,7 +11,7 @@ module DBEE
       attr_accessor :request
       @queue = :download
 
-      def self.perform(request_id, running_job, args, output = nil)
+      def self.perform(request_id, running_job, args)
         request = Request.new(request_id)
         worker = Facter.value(:fqdn)
         request.start_job(:worker => worker, :running_job => running_job)

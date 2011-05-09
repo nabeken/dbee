@@ -14,7 +14,7 @@ module DBEE
           @host_based_queue || :encode
         end
 
-        def self.perform(request_id, running_job, args, output)
+        def self.perform(request_id, running_job, args)
           request = Request.new(request_id)
           worker = Facter.value(:fqdn)
           request.start_job(:worker => worker, :running_job => running_job)
@@ -22,7 +22,7 @@ module DBEE
           request_data = request.get.body
 
           # 前のジョブの成果物(素材)の場所を取得
-          source = output["file"]
+          source = args["file"]
           puts "start encoding #{source}..."
 
           config = Encode::Config.new

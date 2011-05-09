@@ -15,7 +15,7 @@ module DBEE
           @host_based_queue || :encode
         end
 
-        def self.perform(request_id, running_job, args, output = nil)
+        def self.perform(request_id, running_job, args)
           request = Request.new(request_id)
           worker = Facter.value(:fqdn)
           request.start_job(:worker => worker, :running_job => running_job)
@@ -23,7 +23,7 @@ module DBEE
           request_data = request.get.body
 
           # 成果物が存在していることを確認
-          upload_file = output["file"]
+          upload_file = args["file"]
           unless File.exist?(upload_file)
             request_data["running_job"] = nil
             request.put(request_data)
@@ -39,7 +39,7 @@ module DBEE
             response = s3.interface.store_object(
               :bucket => upload_bucket,
               :key    => key,
-              :md5    => output["MD5"],
+              :md5    => args["MD5"],
               :data   => File.open(upload_file, "r")
             )
 
@@ -48,9 +48,9 @@ module DBEE
             etag = response["etag"].gsub(/^\[\"\\"(.*)\\\""\]$/) { $1 }
 
             # MD5が不一致なら例外
-            if output["MD5"] != etag
+            if args["MD5"] != etag
               raise "MD5 checksum does not match. " +
-                    "expected: #{output["MD5"]}, got: #{etag}"
+                    "expected: #{args["MD5"]}, got: #{etag}"
             end
 
             # 終了処理
@@ -64,7 +64,7 @@ module DBEE
           rescue
             request_data["running_job"] = nil
             request.put(request_data)
-            raise "failed to upload #{output["file"]} to S3. reason: #{$!}"
+            raise "failed to upload #{args["file"]} to S3. reason: #{$!}"
           end
         end
       end
