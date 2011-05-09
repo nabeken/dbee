@@ -28,7 +28,7 @@ module DBEE
         def get_queue_prefix(classname)
           case classname
           when 'DBEE::Job::GenerateMetadata'
-            "metadata_"
+            "material_node_"
           when 'DBEE::Job::Upload::S3'
             "upload_"
           else

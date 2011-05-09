@@ -63,7 +63,7 @@ DbeEではエンコードに必要なジョブをリクエストという単位�
         }
 
 2. リクエストをPOSTで受けとったRequest APIはまず素材ファイルのメタデータを生成するジョブ(DBEE::Job::GenerateMetadata)を
-   run_listへ追加し "metadata_${hostname}" キューへenqueueする。
+   run_listへ追加し "material_node_${hostname}" キューへenqueueする。
 
    具体的には:
 

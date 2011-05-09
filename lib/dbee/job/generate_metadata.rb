@@ -11,7 +11,7 @@ module DBEE
       attr_accessor :request_id, :request_url, :http, :hostbased_queue
 
       def self.queue
-        @host_based_queue || :metadata
+        @host_based_queue || :material_node
       end
 
       def self.perform(request_id, running_job, args)
