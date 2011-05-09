@@ -121,7 +121,13 @@ masterが担当 (分散しない)
 
 Resqueからは以下のようにして引数を渡す。 ::
 
-    Resque.enqueue(DBEE::Job::Encode, request_id, next_job_name, next_job["args"], job["output"])
+    Resque.enqueue(DBEE::Job::Encode, request_id, next_job_name, args)
+
+ここで ``args`` は ``run_list`` の ``args`` と1つ前のジョブの ``output`` をマージしたものである。 ::
+
+  next_job["args"].merge!(output)
+
+したがって、outputが優先される。
 
 Resqueはenqueue時に第1引数のインスタンス変数 @queue もしくは特異メソッド queue を呼びだす。
 ホスト名を指定してenqueueする場合は以下を実装する。 ::
