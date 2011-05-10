@@ -72,6 +72,12 @@ module DBEE
         http
       end
 
+      def get(url)
+        http = Request.get_new_http_client
+        http.set_auth(url, DBEE::Config::HTTP_USER, DBEE::Config::HTTP_PASSWORD)
+        http.get(url)
+      end
+
       def request_url
         "#{DBEE::Config::API_URL}/request"
       end

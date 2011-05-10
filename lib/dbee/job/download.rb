@@ -32,7 +32,7 @@ module DBEE
 
         puts "start downloading metadata from #{url}.json.."
         # まずメタデータを取得する (ファイルには保存せずメモリ上へ展開)
-        response = request.http.get("#{url}.json")
+        response = Request.get("#{url}.json")
         if response.status != 200
           request_data["running_job"] = nil
           request.put(request_data)
