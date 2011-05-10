@@ -59,6 +59,7 @@ module DBEE
         # material_node == workerなら同一マシンなのでダウンロードしない
         if request_data["material_node"] == worker
           closer.call
+          return
         end
 
         # ファイルが存在していて、かつハッシュ値が同じならダウンロードしない
@@ -66,12 +67,13 @@ module DBEE
           digest = calc_digest(download_file)
           if metadata["SHA256"] == digest.hexdigest
             closer.call
+            return
           end
         end
 
         puts "start downloading material from #{url} to #{download_file}...."
         f = File.open(download_file, "wb")
-        response = request.http.get(url) do |data|
+        response = Request.get(url) do |data|
           f << data
         end
         f.close
