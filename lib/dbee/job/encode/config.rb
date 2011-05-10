@@ -16,10 +16,10 @@ module DBEE
         def initialize
           @dir = "default"
           @program_id = ""
-          @cmd_format = "-y -i \"%s\" -f mp4 -vcodec libx264 " +
-                        "-fpre %s -s %s -aspect 16:9 " +
-                        "-bufsize 1400k -maxrate 10000k -acodec libfaac " +
-                        "-ar 48000 -ac 2 -ab 128k -vsync 1 -threads %s"
+          @cmd_format = "-y -i \"%s\" -f mp4 -vcodec libx264 -vsync 1 " +
+                        "-fpre %s -r 30000/1001 -s %s -aspect 16:9 " +
+                        "-bufsize 14000k -maxrate 2500k -acodec libfaac " +
+                        "-ar 48000 -ac 2 -ab 128k -async 1 -threads %s"
         end
 
         def get_processor_count

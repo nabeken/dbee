@@ -11,7 +11,7 @@ module DBEE
     HTTP_PASSWORD = "dbee"
 
     module Encode
-      PRESET   = File.expand_path(File.dirname(__FILE__) + '/sample/libx264-IS01.ffpreset')
+      PRESET   = File.expand_path(File.dirname(__FILE__) + '/sample/libx264-iPad.ffpreset')
       PROGRAM_ID = {
         /ＭＸテレビ/   => "23608",
         /ＴＢＳテレビ/ => "1048",
