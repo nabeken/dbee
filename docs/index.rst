@@ -16,7 +16,8 @@ Welcome to DbeE's documentation!
 ==========
 
 master node (1つ)
-    Redisが動作しているノード。エンコード後の後処理を担当するノード。
+    Redisが動作しているノード。
+    ``material_node`` のうちの1つが担当。
 
 material node (複数)
     素材を保持しているノード

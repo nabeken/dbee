@@ -65,6 +65,9 @@ masterが担当 (分散しない)
 
 - DBEE::Job::GenerateMetadata (このジョブは通常、Request API側で自動的に挿入される)
 
+  キュー初期値
+    material_node_${hostname}
+
   引数
     なし
 
@@ -72,6 +75,9 @@ masterが担当 (分散しない)
     なし (JSONをファイルへ出力するだけ)
 
 - DBEE::Job::Download (今のところhttpのみ)
+
+  キュー初期値
+    all_worker
 
   引数
     認証情報とダウンロード先のベースURL
@@ -81,6 +87,9 @@ masterが担当 (分散しない)
 
 - DBEE::Job::Encode (今のところffmpegのみ)
 
+  キュー初期値
+    all_worker
+
   引数
     ffmpeg用の設定、素材の保存先
 
@@ -89,23 +98,27 @@ masterが担当 (分散しない)
 
 - DBEE::Job::Upload (今のところS3クローンのみ)
 
+  キュー初期値
+    all_worker
+
   引数
     認証情報とアップロード先、成果物の保存先
 
   出力
     成果物のアップロード先 => output["url"]
 
-- DBEE::Job::Publish (今のところ特になにもしない)
-
-  引数
-    何もしない、成果物のアップロード先
-
 - DBEE::Job::Notification     (今のところメールを送るのみ)
+
+  キュー初期値
+    master
 
   引数
     メールサーバ情報、メールアドレス、成果物のアップロード先
 
 - DBEE::Job::PostProcess      (今のところ何もしない)
+
+  キュー初期値
+    material_node_${hostname}
 
   引数
     何もしない
@@ -139,3 +152,52 @@ Resqueはenqueue時に第1引数のインスタンス変数 @queue もしくは�
     end
 
 そして ``Resque.enqueue`` 前に ``DBEE::Job::Encode.instance_variable_set(:@host_based_queue, Factor.fqdn)`` をする。
+
+キュー
+======
+
+重い処理には専用のキューを割当てる。
+
+1. メタデータ生成
+2. ダウンロード
+3. エンコード
+4. アップロード
+
+軽い通知には共通のキューを割当てる。
+
+1. 通知処理
+2. 後処理
+
+master node用キュー
+-------------------
+
+キュー名: ``master``
+
+master nodeで処理する必要のあるジョブはこのキューへ投入する。
+
+material node用キュー
+---------------------
+
+キュー名: ``material_node_${hostname}``
+
+materialに対して操作する必要のあるジョブはこのキューへ投入する。
+
+全worker用キュー
+----------------
+
+キュー名: ``all_worker``
+
+分散可能なジョブはこのキューへ投入する。
+
+worker用キュー
+--------------
+
+キュー名: ``${prefix}_worker_${hostname}``
+
+- download_worker_${hostname}
+- encode_worker_${hostname}
+- upload_worker_${hostname}
+
+別々のジョブを同じworkerで処理する必要のあるジョブはこのキューへ投入する。
+
+workerの数はマシン性能によって決める。一般にencode workerは4コア以下は1つが望ましい。
