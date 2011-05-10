@@ -53,7 +53,7 @@ module DBEE
           # 最後にrunning_jobをDELETEしてジョブの正常終了を通知
           request.delete("running_job")
           puts "Downloading job for request##{request.request_id} sucessfully finished."
-        }
+        end
 
         # material_node == workerなら同一マシンなのでダウンロードしない
         if request_data["material_node"] == worker
