@@ -68,6 +68,7 @@ module DBEE
         http = HTTPClient.new(proxy)
         http.set_auth(Request.request_url, DBEE::Config::HTTP_USER, DBEE::Config::HTTP_PASSWORD)
         http.ssl_config.add_trust_ca(DBEE::Config::CA_DIR)
+        http.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
         http
       end
 
