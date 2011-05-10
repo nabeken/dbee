@@ -40,10 +40,10 @@ module DBEE
         metadata = JSON.parse(response.content)
 
         # 終了処理
-        closer = proc {
+        closer = Proc.new do |file|
           puts "....finished"
 
-          request_data["run_list"][0]["output"]["file"] = download_file
+          request_data["run_list"][0]["output"]["file"] = file
           request_data["run_list"][0]["output"]["worker"] = worker
 
           # 次のジョブも同一ノードで実行してほしい
@@ -58,8 +58,7 @@ module DBEE
         # material_node == workerなら同一マシンなのでダウンロードしない
         if request_data["material_node"] == worker
           # ダウンロードしないのでもとの場所に存在している
-          download_file = "#{DBEE::Config::MATERIAL_DIR}/#{filename}"
-          closer.call
+          closer.call("#{DBEE::Config::MATERIAL_DIR}/#{filename}")
           return
         end
 
@@ -68,7 +67,7 @@ module DBEE
         if File.exist?(download_file)
           digest = calc_digest(download_file)
           if metadata["SHA256"] == digest.hexdigest
-            closer.call
+            closer.call(download_file)
             return
           end
         end
@@ -95,7 +94,7 @@ module DBEE
           raise "downloaded file #{download_file} does not match SHA256 checksums." +
                 "expected: #{metadata["SHA256"]}, got #{digest.hexdigest}"
         end
-        closer.call
+        closer.call(download_file)
       end
 
       def calc_digest(download_file)
