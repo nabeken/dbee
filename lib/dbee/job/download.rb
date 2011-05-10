@@ -28,7 +28,6 @@ module DBEE
         filename = request_data["program"]["filename"]
         url = URI.encode("#{args["base_url"]}#{filename}")
         FileUtils.mkdir_p(download_dir) unless File.exists?(download_dir)
-        download_file = "#{download_dir}/#{filename}"
 
         puts "start downloading metadata from #{url}.json.."
         # まずメタデータを取得する (ファイルには保存せずメモリ上へ展開)
@@ -58,11 +57,14 @@ module DBEE
 
         # material_node == workerなら同一マシンなのでダウンロードしない
         if request_data["material_node"] == worker
+          # ダウンロードしないのでもとの場所に存在している
+          download_file = "#{DBEE::Config::MATERIAL_DIR}/#{filename}"
           closer.call
           return
         end
 
         # ファイルが存在していて、かつハッシュ値が同じならダウンロードしない
+        download_file = "#{download_dir}/#{filename}"
         if File.exist?(download_file)
           digest = calc_digest(download_file)
           if metadata["SHA256"] == digest.hexdigest
