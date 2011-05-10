@@ -75,7 +75,7 @@ describe 'DBEE Request API App' do
     JSON.parse(last_response.body).should == JSON.parse(data.to_json)
 
     # material_node別のキューが作成されているか
-    Resque.redis.keys("*").should include("queue:material_node_#{data["material_node"]}")
+    Resque.redis.keys("*").should include("queue:metadata_#{data["material_node"]}")
   end
 
   it "puts JSON using request id and gets updated json" do

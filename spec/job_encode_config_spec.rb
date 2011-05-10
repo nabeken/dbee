@@ -10,9 +10,9 @@ describe 'DBEE Encode::Config' do
 
     @program_id = DBEE::Config::Encode::PROGRAM_ID.dup
     DBEE::Config::Encode::PROGRAM_ID[/TOKYOMX/] = '99999'
-    @get_cmd_format = "-y -i \"%s\" -f mp4 -vcodec libx264 -fpre %s " +
-                      "-s %s -aspect 16:9 -bufsize 1400k -maxrate 10000k " +
-                      "-acodec libfaac -ar 48000 -ac 2 -ab 128k -vsync 1 " +
+    @get_cmd_format = "-y -i \"%s\" -f mp4 -vcodec libx264 -vsync 1 -fpre %s " +
+                      "-r 30000/1001 -s %s -aspect 16:9 -bufsize 14000k -maxrate 2500k " +
+                      "-acodec libfaac -ar 48000 -ac 2 -ab 128k -async 1 " +
                       "-threads %s"
     Facter.stub(:processorcount).and_return('PPP')
   end

@@ -49,8 +49,8 @@ describe 'DBEE Encode Job for iPad' do
     }
   end
 
-  it "says :encode in queue()" do
-    DBEE::Job::Encode::IPAD.queue.should == :encode
+  it "says nil in queue()" do
+    DBEE::Job::Encode::IPAD.queue.should be_nil
   end
 
   it "says :encode_2 in queue() via @host_based_queue" do
