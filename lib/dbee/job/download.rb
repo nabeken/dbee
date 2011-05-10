@@ -40,6 +40,35 @@ module DBEE
         end
         metadata = JSON.parse(response.content)
 
+        # 終了処理
+        closer = proc {
+          puts "....finished"
+
+          request_data["run_list"][0]["output"]["file"] = download_file
+          request_data["run_list"][0]["output"]["worker"] = worker
+
+          # 次のジョブも同一ノードで実行してほしい
+          request_data["run_list"][0]["output"]["next_same_node"] = true
+          request.put(request_data)
+
+          # 最後にrunning_jobをDELETEしてジョブの正常終了を通知
+          request.delete("running_job")
+          puts "Downloading job for request##{request.request_id} sucessfully finished."
+        }
+
+        # material_node == workerなら同一マシンなのでダウンロードしない
+        if request_data["material_node"] == worker
+          closer.call
+        end
+
+        # ファイルが存在していて、かつハッシュ値が同じならダウンロードしない
+        if File.exist?(download_file)
+          digest = calc_digest(download_file)
+          if metadata["SHA256"] == digest.hexdigest
+            closer.call
+          end
+        end
+
         puts "start downloading material from #{url} to #{download_file}...."
         f = File.open(download_file, "wb")
         response = request.http.get(url) do |data|
@@ -54,15 +83,6 @@ module DBEE
           raise "failed to download from #{url}. got #{response.status}"
         end
 
-        puts "Calculating SHA256 for #{download_file}...."
-        digest = Digest::SHA256.new
-        File.open(download_file, 'r') do |f|
-          buf = String.new
-          while f.read(1024 * 8, buf)
-            digest << buf
-          end
-        end
-
         # SHA256でダウンロードした素材を確かめる
         if metadata["SHA256"] != digest.hexdigest
           File.unlink(download_file)
@@ -71,19 +91,19 @@ module DBEE
           raise "downloaded file #{download_file} does not match SHA256 checksums." +
                 "expected: #{metadata["SHA256"]}, got #{digest.hexdigest}"
         end
+        closer.call
+      end
 
-        puts "....finished"
-
-        request_data["run_list"][0]["output"]["file"] = download_file
-        request_data["run_list"][0]["output"]["worker"] = worker
-
-        # 次のジョブも同一ノードで実行してほしい
-        request_data["run_list"][0]["output"]["next_same_node"] = true
-        request.put(request_data)
-
-        # 最後にrunning_jobをDELETEしてジョブの正常終了を通知
-        request.delete("running_job")
-        puts "Downloading job for request##{request.request_id} sucessfully finished."
+      def calc_digest(download_file)
+        puts "Calculating SHA256 for #{download_file}...."
+        digest = Digest::SHA256.new
+        File.open(download_file, 'r') do |f|
+          buf = String.new
+          while f.read(1024 * 8, buf)
+            digest << buf
+          end
+        end
+        digest
       end
     end
   end
