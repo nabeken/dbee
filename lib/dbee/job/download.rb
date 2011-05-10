@@ -13,7 +13,7 @@ module DBEE
       @queue = :all_worker
 
       def self.queue_prefix
-        "download_"
+        ""
       end
 
       def self.perform(request_id, running_job, args)

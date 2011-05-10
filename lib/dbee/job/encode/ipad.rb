@@ -17,7 +17,7 @@ module DBEE
         end
 
         def self.queue
-          @host_based_queue
+          @host_based_queue || :all_worker
         end
 
         def self.perform(request_id, running_job, args)
