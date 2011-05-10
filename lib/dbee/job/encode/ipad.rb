@@ -36,7 +36,9 @@ module DBEE
           config.size = "1280x720"
           config.dir = "iPad"
 
-          unless system("ffmpeg #{config.get_cmd} \"#{config.output}\" >/dev/null 2>&1")
+          cmd = "ffmpeg #{config.get_cmd} \"#{config.output}\" >/dev/null 2>&1"
+          puts cmd
+          unless system(cmd)
             # ffmpegが失敗した場合
             File.unlink(config.output)
             request_data["running_job"] = nil
