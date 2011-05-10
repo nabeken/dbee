@@ -13,8 +13,12 @@ module DBEE
         extend Job
         attr_accessor :request_id, :request_url, :http, :hostbased_queue
 
+        def self.queue_prefix
+          "upload_"
+        end
+
         def self.queue
-          @host_based_queue || :encode
+          @host_based_queue
         end
 
         def self.perform(request_id, running_job, args)

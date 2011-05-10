@@ -10,7 +10,11 @@ module DBEE
   module Job
     class Notification
       extend Job
-      @queue = :notification
+      @queue = :master
+
+      def self.queue_prefix
+        ""
+      end
 
       def self.perform(request_id, running_job, args)
         request = Request.new(request_id)

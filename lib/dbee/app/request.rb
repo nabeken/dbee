@@ -25,15 +25,8 @@ module DBEE
           }
         end
 
-        def get_queue_prefix(classname)
-          case classname
-          when 'DBEE::Job::GenerateMetadata'
-            "material_node_"
-          when 'DBEE::Job::Upload::S3'
-            "upload_"
-          else
-            ''
-          end
+        def get_queue_prefix(klass)
+          klass.queue_prefix
         end
       end
 
@@ -91,7 +84,7 @@ module DBEE
 
         # GenerateMetadataならmaterial_nodeのキューへ入れる
         if next_job == DBEE::Job::GenerateMetadata
-          queue_prefix = get_queue_prefix(next_job.to_s)
+          queue_prefix = get_queue_prefix(next_job)
           DBEE::Job::GenerateMetadata.instance_variable_set(
             :@host_based_queue, "#{queue_prefix}#{dbee_request["material_node"]}".to_sym
           )
@@ -230,7 +223,7 @@ module DBEE
             # 次のキューは今のジョブと同じノードにするかどうか
             if job["output"]["next_same_node"]
               halt 400, "worker required" if requested["worker"].nil?
-              queue_prefix = get_queue_prefix(next_job_class.to_s)
+              queue_prefix = get_queue_prefix(next_job_class)
               next_job_class.instance_variable_set(
                 :@host_based_queue, "#{queue_prefix}#{requested["worker"]}".to_sym
               )

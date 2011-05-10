@@ -12,8 +12,12 @@ module DBEE
         extend Job
         attr_accessor :hostbased_queue
 
+        def self.queue_prefix
+          "encode_"
+        end
+
         def self.queue
-          @host_based_queue || :encode
+          @host_based_queue
         end
 
         def self.perform(request_id, running_job, args)

@@ -10,7 +10,11 @@ module DBEE
       extend Job
 
       attr_accessor :request
-      @queue = :download
+      @queue = :all_worker
+
+      def self.queue_prefix
+        "download_"
+      end
 
       def self.perform(request_id, running_job, args)
         request = Request.new(request_id)
