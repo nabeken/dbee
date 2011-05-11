@@ -1,0 +1,3 @@
+[submodule "vendor/resque"]
+	path = vendor/resque
+	url = git://github.com/defunkt/resque.git
