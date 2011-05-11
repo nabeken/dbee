@@ -40,11 +40,12 @@ module DBEE
         metadata = JSON.parse(response.content)
 
         # 終了処理
-        closer = Proc.new do |file|
+        closer = Proc.new do |args|
           puts "....finished"
 
-          request_data["run_list"][0]["output"]["file"] = file
+          request_data["run_list"][0]["output"]["file"] = args[:file]
           request_data["run_list"][0]["output"]["worker"] = worker
+          request_data["run_list"][0]["output"]["is_copied"] = args[:is_copied]
 
           # 次のジョブも同一ノードで実行してほしい
           request_data["run_list"][0]["output"]["next_same_node"] = true
@@ -58,7 +59,7 @@ module DBEE
         # material_node == workerなら同一マシンなのでダウンロードしない
         if request_data["material_node"] == worker
           # ダウンロードしないのでもとの場所に存在している
-          closer.call("#{DBEE::Config::MATERIAL_DIR}/#{filename}")
+          closer.call(:file => "#{DBEE::Config::MATERIAL_DIR}/#{filename}", :is_copied => false)
           return
         end
 
@@ -67,7 +68,7 @@ module DBEE
         if File.exist?(download_file)
           digest = calc_digest(download_file)
           if metadata["SHA256"] == digest.hexdigest
-            closer.call(download_file)
+            closer.call(:file => download_file, :is_copied => true)
             return
           end
         end
@@ -87,17 +88,18 @@ module DBEE
         end
 
         # SHA256でダウンロードした素材を確かめる
+        digest = calc_digest(download_file)
         if metadata["SHA256"] != digest.hexdigest
-          File.unlink(download_file)
+          #File.unlink(download_file)
           request_data["running_job"] = nil
           request.put(request_data)
-          raise "downloaded file #{download_file} does not match SHA256 checksums." +
+          raise "downloaded file #{download_file} does not match SHA256 checksums.\n" +
                 "expected: #{metadata["SHA256"]}, got #{digest.hexdigest}"
         end
-        closer.call(download_file)
+        closer.call(:file => download_file, :is_copied => true)
       end
 
-      def calc_digest(download_file)
+      def self.calc_digest(download_file)
         puts "Calculating SHA256 for #{download_file}...."
         digest = Digest::SHA256.new
         File.open(download_file, 'r') do |f|

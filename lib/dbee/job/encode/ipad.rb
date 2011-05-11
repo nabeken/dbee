@@ -58,6 +58,13 @@ module DBEE
           end
           puts "...finished."
 
+          # 素材のコピーの場合は削除する
+          if args["is_copied"]
+            puts "Remove copied materials...."
+            # FIXME: とりあえず削除はせずにリネームする
+            File.rename(source, "#{source}.encoded.ts")
+          end
+
           # request_data APIへ報告する
           job = request_data["run_list"].first
           job["output"]["MD5"] = digest.hexdigest
