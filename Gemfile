@@ -14,4 +14,5 @@ group :test do
   gem 'thin'
   gem 'rake'
   gem 'shotgun'
+  gem 'god'
 end
