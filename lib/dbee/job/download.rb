@@ -90,7 +90,7 @@ module DBEE
         # SHA256でダウンロードした素材を確かめる
         digest = calc_digest(download_file)
         if metadata["SHA256"] != digest.hexdigest
-          #File.unlink(download_file)
+          File.unlink(download_file)
           request_data["running_job"] = nil
           request.put(request_data)
           raise "downloaded file #{download_file} does not match SHA256 checksums.\n" +
