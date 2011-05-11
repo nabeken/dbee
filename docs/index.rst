@@ -8,6 +8,7 @@ Welcome to DbeE's documentation!
 
 .. toctree::
 
+   README
    job
    api
    request
