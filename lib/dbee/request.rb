@@ -72,10 +72,18 @@ module DBEE
         http
       end
 
-      def get(url)
+      def get(url, &block)
         http = Request.get_new_http_client
         http.set_auth(url, DBEE::Config::HTTP_USER, DBEE::Config::HTTP_PASSWORD)
-        http.get(url)
+        if block.nil?
+          http.get(url)
+        else
+          conn = http.get_async(url)
+          io = conn.pop.content
+          while data = io.read(1024 * 8)
+            block.call(data)
+          end
+        end
       end
 
       def request_url
