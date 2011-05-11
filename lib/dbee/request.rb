@@ -78,9 +78,7 @@ module DBEE
         if block.nil?
           http.get(url)
         else
-          conn = http.get_async(url)
-          io = conn.pop.content
-          while data = io.read(1024 * 8)
+          http.get(url, :follow_redirect => true) do |data|
             block.call(data)
           end
         end
