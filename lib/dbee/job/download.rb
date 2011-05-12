@@ -59,6 +59,7 @@ module DBEE
         # material_node == workerなら同一マシンなのでダウンロードしない
         if request_data["material_node"] == worker
           # ダウンロードしないのでもとの場所に存在している
+          puts "material is on this node. do nothing..."
           closer.call(:file => "#{DBEE::Config::MATERIAL_DIR}/#{filename}", :is_copied => false)
           return
         end
@@ -66,10 +67,14 @@ module DBEE
         # ファイルが存在していて、かつハッシュ値が同じならダウンロードしない
         download_file = "#{download_dir}/#{filename}"
         if File.exist?(download_file)
+          puts "material found..."
           digest = calc_digest(download_file)
           if metadata["SHA256"] == digest.hexdigest
+            puts "and match SHA256. do nothing..."
             closer.call(:file => download_file, :is_copied => true)
             return
+          else
+            puts "and does not match SHA256. try to download..."
           end
         end
 
