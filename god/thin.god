@@ -11,8 +11,9 @@ God.watch do |w|
   w.name     = "dbee-thin"
   w.group    = "dbee"
   w.interval = 30.seconds
-  w.start    = "thin --address 127.0.0.1 --port 9393 --daemonize start"
-  w.stop    = "thin --address 127.0.0.1 --port 9393 --daemonize stop"
+  w.start    = "thin start --address 127.0.0.1 --port 9393 --daemonize"
+  w.stop     = "thin stop --address 127.0.0.1 --port 9393 --daemonize"
+  w.restart  = "thin restart --address 127.0.0.1 --port 9393 --daemonize"
   w.dir      = File.dirname(__FILE__) + '/../'
   #w.uid      = "root"
   #w.gid      = "root"
