@@ -40,11 +40,11 @@ Getting started
 
 6. Start API server. ::
 
-    $ thin --address 127.0.0.1 --port 9393 --rackup config.ru start
+    $ god -c god/thin.god
 
 7. Start workers. ::
 
-    $ god -c god/all-in-one.god
+    $ god load god/all-in-one.god
 
 8. Enqueue it! ::
 
