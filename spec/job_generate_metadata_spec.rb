@@ -38,7 +38,7 @@ describe 'DBEE Generating Metadata Job' do
   end
 
   after(:all) do
-    File.unlink("#{@original_file}.json")
+    #File.unlink("#{@original_file}.json")
   end
 
   it 'generates metadata in JSON' do

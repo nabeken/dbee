@@ -9,11 +9,13 @@ require 'digest/sha2'
 describe 'DBEE Download Job' do
   before(:all) do
     @original_file = Pathname.new(File.dirname(__FILE__) + '/../coverage/assets/0.4.4/favicon.png')
+    @original_file_data = File.open(@original_file).read
     @download_dir = "#{DBEE::Config::Encode::OUTPUT_DIR}/download"
     # 成功したリクエストIDを保存して後のテストで使う
     @successed_request = {}
     @json_download_job = {
-      "requester"   => "rspec.tokyo",
+      "requester"     => "rspec.tokyo",
+      "material_node" => "rspec.tokyo",
       "running_job" => "DBEE::Job::Download",
       "request_id" => "1",
       "run_list" => [
@@ -47,8 +49,12 @@ describe 'DBEE Download Job' do
   end
 
   # 生成したjsonを消しておく
+  # 削除したファイルを戻しておく
   after(:all) do
     File.unlink("#{@original_file}.json")
+    File.open(@original_file, "wb") do |f|
+      f.print @original_file_data
+    end
   end
 
   it "performs downloading successfully" do
@@ -65,6 +71,7 @@ describe 'DBEE Download Job' do
     Digest::SHA1.hexdigest(File.open(@original_file).read).should == Digest::SHA1.hexdigest(
       File.open(@download_dir + "/#{@json_download_job["program"]["filename"]}").read
     )
+    File.unlink("#{DBEE::Config::Encode::OUTPUT_DIR}/download/#{@original_file.basename}")
   end
 
   it "performs downloading file does not exists" do
