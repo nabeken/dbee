@@ -16,7 +16,7 @@ God.watch do |w|
   w.dir      = File.dirname(__FILE__) + '/../'
   #w.uid      = "root"
   #w.gid      = "root"
-  w.log      = "/tmp/god-#{name}.log"
+  w.log      = "/tmp/god-master.log"
 
   # init状態のとき、process_runningがtrueならupへ遷移、falseならstartへ遷移
   # startに遷移すると w.start が実行される
