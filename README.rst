@@ -33,7 +33,7 @@ Getting started
 
 4. Sign up Amazon S3 or Setup swift
 
-5. Copy config.rb.sample to config.rb and Edit. ::
+5. Copy config.rb.sample to config.rb and Edit ::
 
     $ config.rb.sample config.rb
     $ vi config.rb
@@ -44,7 +44,7 @@ Getting started
 
 7. Start workers. ::
 
-    $ god
+    $ god -c god/all-in-one.god
 
 8. Enqueue it! ::
 
