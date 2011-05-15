@@ -12,6 +12,7 @@ module DBEE
     HTTP_PASSWORD = "dbee"
     CA_DIR = "/etc/ssl/certs"
     TSSPLITTER = "/usr/local/bin/TsSplitter.exe"
+    WINE = "LD_32_LIBRARY_PATH=/compat/i386/usr/local/lib /usr/local/bin/wine"
     FAAD = "/usr/local/bin/faad"
 
     module Encode
