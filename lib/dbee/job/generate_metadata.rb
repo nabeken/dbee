@@ -5,6 +5,7 @@ require 'facter'
 require 'fileutils'
 require 'digest/sha2'
 require 'pathname'
+require 'tmpdir'
 
 module DBEE
   module Job
@@ -34,6 +35,46 @@ module DBEE
           request_data["running_job"] = nil
           request.put(request_data)
           raise "material not found"
+        end
+
+        # 一時ディレクトリを作る
+        Dir.mktmpdir("dbee-") do |dir|
+          aac = "#{dir}/#{filename.basename}.aac"
+          # まずTSからAACだけ抜く
+          puts "Extracting audio track from material...."
+          unless system("ffmpeg -i #{filename} -vn -acodec copy #{aac}")
+            raise "failed to extract audio track."
+          end
+          puts "..finished"
+
+          # faadへ渡して音声切り替えが起きているか検証する
+          puts "validating audio track ...."
+          system("#{DBEE::Config::FAAD} -w #{aac} >/dev/null 2>&1")
+          puts "..finished"
+
+          # FIXME: 異常終了か正常終了か見分けられない....
+          if $?.exitstatus == 21
+            # 切り替えあり
+            puts "audio track varies channel settings. We need to split material."
+            puts "Executing TsSplitter...."
+            cmd = "wine #{DBEE::Config::TSSPLITTER} -SEPA -SD -1SEG -OUT #{dir} #{filename} >/dev/null 2>&1"
+            unless system(cmd)
+              raise "failed to execute TsSplitter.exe"
+            end
+            puts "..finished"
+            # 複数の生成物からファイルサイズが一番大きいものを選ぶ
+            new_material = Pathname.glob("#{dir}/*.ts").sort { |a, b|
+              b.size <=> a.size
+            }.first
+            puts "rename #{filename} to #{filename}.orig"
+            # まず以前のTSをリネーム
+            filename.rename("#{filename}.orig.ts")
+            # もとのファイル名にリネーム
+            puts "rename #{new_material} to #{filename}"
+            new_material.rename(filename)
+          else
+            # なし
+          end
         end
 
         # すでにmetadataが生成済みならそのまま終了
