@@ -1,4 +1,5 @@
 # vim:fileencoding=utf-8
+# vim:filetype=ruby
 
 module DBEE
   module Config
@@ -7,9 +8,11 @@ module DBEE
     MATERIAL_BASE_URL = "http://192.168.5.3/"
     REQUEST_REDIS_HKEY = "request"
     MATERIAL_DIR = "/srv/storage/recordings"
-    CA_DIR = "/etc/ssl/certs"
     HTTP_USER = "dbee"
     HTTP_PASSWORD = "dbee"
+    CA_DIR = "/etc/ssl/certs"
+    TSSPLITTER = "/usr/local/bin/TsSplitter.exe"
+    FAAD = "/usr/local/bin/faad"
 
     module Encode
       PRESET   = File.expand_path(File.dirname(__FILE__) + '/sample/libx264-iPad.ffpreset')
