@@ -7,6 +7,9 @@ REQUIREMENT
 
 - Ruby 1.9+
 - ffmpeg with x264
+- TsSplitter.exe to splite MPEG2 TS to avoid some audio channel problems
+- wine to run TsSplitter.exe on Linux/FreeBSD
+- patched faad frontend to detect audio channel settings
 - Redis (used by resque)
 - stunnel to tunnel redis connection securely (if you want to distribute jobs across the internet)
 - Web server to serve materials (Nginx, lighttpd, Apache, etc...)
@@ -30,6 +33,10 @@ Getting started
 2. Setup Web server
 
 3. Build ffmpeg with x264
+
+4. Build wine
+
+5. Build patched faad
 
 4. Sign up Amazon S3 or Setup swift
 
@@ -78,5 +85,6 @@ ARCHTECTURE
 FUTURE WORK
 ===========
 
+- TVRock integration
 - iPad/iPhone/Android App (using Titanium Mobile)
 - EC2 integration
