@@ -50,7 +50,7 @@ module DBEE
 
           # faadへ渡して音声切り替えが起きているか検証する
           puts "validating audio track ...."
-          system("#{DBEE::Config::FAAD} -w #{aac} >/dev/null 2>&1")
+          system("#{DBEE::Config::FAAD} -w \"#{aac}\" >/dev/null 2>&1")
           puts "..finished"
 
           # FIXME: 異常終了か正常終了か見分けられない....
