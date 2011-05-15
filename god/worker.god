@@ -15,17 +15,17 @@ load File.dirname(__FILE__) + '/../config.rb'
   count = job.shift
   queue = job.shift
 
-  count.times do
+  count.times do |n|
     God.watch do |w|
-      w.name     = "dbee-#{name}#{count}"
+      w.name     = "dbee-#{name}#{n}"
       w.group    = "dbee"
       w.interval = 30.seconds
-      w.env      = {"COUNT" => count, "QUEUE" => queue, "VVERBOSE" => "1"}
+      w.env      = {"QUEUE" => queue, "VVERBOSE" => "1"}
       w.start    = "#{DBEE::Config::RAKE} -f #{rakefile} resque:work"
       w.dir      = File.dirname(__FILE__) + '/../'
       #w.uid      = "root"
       #w.gid      = "root"
-      w.log      = "/tmp/god-#{name}#{count}.log"
+      w.log      = "/tmp/god-#{name}#{n}.log"
 
       # init状態のとき、process_runningがtrueならupへ遷移、falseならstartへ遷移
       # startに遷移すると w.start が実行される
