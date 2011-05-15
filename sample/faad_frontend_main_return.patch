@@ -1,0 +1,12 @@
+diff -urN faad2-2.7.orig/frontend/main.c faad2-2.7/frontend/main.c
+--- faad2-2.7.orig/frontend/main.c	2011-05-15 20:09:04.131377319 +0900
++++ faad2-2.7/frontend/main.c	2011-05-15 20:09:45.972631155 +0900
+@@ -1249,6 +1249,8 @@
+         result = decodeAACfile(aacFileName, audioFileName, adtsFileName, writeToStdio,
+             def_srate, object_type, outputFormat, format, downMatrix, infoOnly, adts_out,
+             old_format, &length);
++        if (result)
++          return result;
+     }
+ 
+     if (!result && !infoOnly)
