@@ -54,7 +54,7 @@ master nodeのredisはローカルIPアドレスで接続を受け付ける。�
 MPEG2 TSの音声切り替え問題について
 ----------------------------------
 
-.. _`faad_frontend_main_return.patch`: http://github.com/nabeken/dbee/master/sample/faad_frontend_main_return.patch
+.. _`faad_frontend_main_return.patch`: https://github.com/nabeken/dbee/blob/master/sample/faad_frontend_main_return.patch
 
 MPEG2 TSの音声でしばしば音声の切り替え(モノラルからステレオ、またはその逆)が発生する。
 このことに無頓着なエンコーダ、デコーダを使った場合多くは切り替え後無音となることになる。
