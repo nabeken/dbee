@@ -61,8 +61,7 @@ module DBEE
           # 素材のコピーの場合は削除する
           if args["is_copied"]
             puts "Remove copied materials...."
-            # FIXME: とりあえず削除はせずにリネームする
-            File.rename(source, "#{source}.encoded.ts")
+            File.unlink(source)
           end
 
           # request_data APIへ報告する
