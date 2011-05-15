@@ -58,7 +58,7 @@ module DBEE
             # 切り替えあり
             puts "audio track varies channel settings. We need to split material."
             puts "Executing TsSplitter...."
-            cmd = "wine #{DBEE::Config::TSSPLITTER} -SEPA -SD -1SEG -OUT #{dir} #{filename} >/dev/null 2>&1"
+            cmd = "#{DBEE::Config::WINE} #{DBEE::Config::TSSPLITTER} -SEPA -SD -1SEG -OUT #{dir} #{filename} >/dev/null 2>&1"
             unless system(cmd)
               raise "failed to execute TsSplitter.exe"
             end
