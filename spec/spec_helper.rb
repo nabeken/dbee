@@ -8,7 +8,6 @@ require 'sinatra'
 require 'rack/test'
 require 'rspec'
 require 'rspec/autorun'
-require 'rspec/mocks'
 require 'rspec/mocks/standalone'
 require 'digest/sha1'
 
@@ -21,10 +20,7 @@ set :logging, false
 
 RSpec.configure do |conf|
   conf.include Rack::Test::Methods
-  conf.mock_with :mocha
-  #conf.full_backtrace = true
-  #conf.color_enabled  = true
-  #conf.formatter = :progress
+  #conf.mock_with :mocha
 end
 
 def app
