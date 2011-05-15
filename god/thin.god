@@ -15,6 +15,7 @@ God.watch do |w|
   w.stop     = "thin stop --address 127.0.0.1 --port 9393 --daemonize"
   w.restart  = "thin restart --address 127.0.0.1 --port 9393 --daemonize"
   w.dir      = File.dirname(__FILE__) + '/../'
+  w.pid_file = w.dir + 'tmp/pids/thin.pid'
   #w.uid      = "root"
   #w.gid      = "root"
   w.log      = "/tmp/god-thin.log"
