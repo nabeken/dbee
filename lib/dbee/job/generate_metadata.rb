@@ -58,7 +58,7 @@ module DBEE
             # 切り替えあり
             puts "audio track varies channel settings. We need to split material."
             puts "Executing TsSplitter...."
-            cmd = "#{DBEE::Config::WINE} #{DBEE::Config::TSSPLITTER} -SEPA -SD -1SEG -OUT #{dir} \"#{filename}\" >/dev/null 2>&1"
+            cmd = "LANG=ja_JP.UTF-8 #{DBEE::Config::WINE} #{DBEE::Config::TSSPLITTER} -SEPA -SD -1SEG -OUT #{dir} \"#{filename}\" >/dev/null 2>&1"
             unless system(cmd)
               raise "failed to execute TsSplitter.exe"
             end
@@ -67,12 +67,15 @@ module DBEE
             new_material = Pathname.glob("#{dir}/*.ts").sort { |a, b|
               b.size <=> a.size
             }.first
+            if new_material.nil?
+              raise "execute TsSplitter failed"
+            end
             puts "rename #{filename} to #{filename}.orig"
             # まず以前のTSをリネーム
             filename.rename("#{filename}.orig.ts")
-            # もとのファイル名にリネーム
+            # もとのファイル名へ移動
             puts "rename #{new_material} to #{filename}"
-            new_material.rename(filename)
+            FileUtils.mv(new_material, filename)
           else
             # なし
           end
