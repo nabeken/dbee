@@ -41,9 +41,10 @@ module DBEE
         Dir.mktmpdir("dbee-") do |dir|
           aac = "#{dir}/#{filename.basename}.aac"
           # まずTSからAACだけ抜く
-          puts "Extracting audio track from material...."
-          unless system("ffmpeg -i #{filename} -vn -acodec copy #{aac}")
-            raise "failed to extract audio track."
+          puts "Extracting audio track from #{filename}...."
+          cmd = "ffmpeg -i \"#{filename}\" -vn -acodec copy \"#{aac}\" >/dev/null 2>&1"
+          unless system(cmd)
+            raise "failed to extract audio track. #{cmd}. return code: #{$?}"
           end
           puts "..finished"
 
