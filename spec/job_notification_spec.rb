@@ -34,7 +34,7 @@ describe 'DBEE Notification Job' do
     args        = json_job["run_list"][0]["args"]
 
     # 引数内のToが引数のToと一致すればtrue
-    Pony.stub!(:mail) do |arg|
+    Pony.stub(:mail) do |arg|
       arg[:to] == args["to"]
     end
     Pony.should_receive(:mail).and_return(true)

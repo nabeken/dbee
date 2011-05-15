@@ -6,8 +6,8 @@ require 'dbee/job'
 describe 'DBEE Generating Metadata Job' do
   before(:all) do
     @material_dir = DBEE::Config::MATERIAL_DIR
-    @original_file = Pathname.new(File.dirname(__FILE__) + '/../coverage/assets/0.4.4/favicon.png')
-    DBEE::Config::MATERIAL_DIR.replace(File.dirname(__FILE__) + '/../coverage/assets/0.4.4')
+    @original_file = Pathname.new(File.dirname(__FILE__) + '/../coverage/test.ts')
+    DBEE::Config::MATERIAL_DIR.replace(File.dirname(__FILE__) + '/../coverage/')
     @json_job = {
       "requester"   => "rspec.tokyo",
       "running_job" => "DBEE::Job::GenerateMetadata",
@@ -22,7 +22,7 @@ describe 'DBEE Generating Metadata Job' do
       "program" => {
         "name"          => "まどか",
         "ch"            => "TBS",
-        "filename"      => "favicon.png"
+        "filename"      => @original_file.basename
       }
     }
 
@@ -49,6 +49,10 @@ describe 'DBEE Generating Metadata Job' do
     args        = json_job["run_list"][0]["args"]
 
     Resque.redis.hset("request", request_id, json_job.to_json)
+    DBEE::Job::GenerateMetadata.stub(:system).and_return(true)
+    DBEE::Job::GenerateMetadata.should_receive(:system).with(
+      /^ffmpeg -i/
+    ).and_return(true)
     DBEE::Job::GenerateMetadata.perform(request_id, running_job, args)
 
     # 生成されたJSONが予め作成したものと一致するか

@@ -8,7 +8,7 @@ require 'digest/sha2'
 
 describe 'DBEE Download Job' do
   before(:all) do
-    @original_file = Pathname.new(File.dirname(__FILE__) + '/../coverage/assets/0.4.4/favicon.png')
+    @original_file = Pathname.new(File.dirname(__FILE__) + '/../coverage/test.ts')
     @original_file_data = File.open(@original_file).read
     @download_dir = "#{DBEE::Config::Encode::OUTPUT_DIR}/download"
     # 成功したリクエストIDを保存して後のテストで使う
@@ -22,7 +22,7 @@ describe 'DBEE Download Job' do
         {
           "name" => "DBEE::Job::Download",
           "args" => {
-            "base_url" => "http://127.0.0.1:9393/coverage/assets/0.4.4/"
+            "base_url" => "http://127.0.0.1:9393/coverage/"
           },
           "output" => {}
         }
@@ -30,7 +30,7 @@ describe 'DBEE Download Job' do
       "program" => {
         "name"          => "まどか",
         "ch"            => "TBS",
-        "filename"      => "favicon.png"
+        "filename"      => @original_file.basename
       }
     }
 
@@ -97,8 +97,6 @@ describe 'DBEE Download Job' do
 
   it "performs downloading w/ metadata available, material does not exists" do
     request = @json_download_job.dup
-    request["run_list"][0]["args"]["base_url"] = "http://127.0.0.1:9393/coverage/assets/0.4.4/"
-    request["program"]["filename"] = "favicon.png"
     request_id  = request["request_id"]
     running_job = request["running_job"]
     args        = request["run_list"][0]["args"]
@@ -119,8 +117,6 @@ describe 'DBEE Download Job' do
 
   it "performs downloading w/ material does not match SHA256" do
     request = @json_download_job.dup
-    request["run_list"][0]["args"]["base_url"] = "http://127.0.0.1:9393/coverage/assets/0.4.4/"
-    request["program"]["filename"] = "favicon.png"
     request_id  = request["request_id"]
     running_job = request["running_job"]
     args        = request["run_list"][0]["args"]

@@ -29,7 +29,7 @@ describe 'DBEE Encode Job for iPad' do
     DBEE::Job::Encode::Config.module_eval {
       alias_method :_get_cmd, :get_cmd
       def get_cmd
-        " @@ENCODE_OPTS@@ "
+        "@@ENCODE_OPTS@@"
       end
     }
   end
@@ -64,8 +64,7 @@ describe 'DBEE Encode Job for iPad' do
     request_id  = json_job["request_id"]
     running_job = json_job["running_job"]
     args        = json_job["run_list"][0]["args"]
-    Object.stub!(:system).and_return(true)
-    Object.should_receive(:system).with("ffmpeg @@ENCODE_OPTS@@ \"#{@sample_file}\" >/dev/null 2>&1").and_return(true)
+    DBEE::Job::Encode::IPAD.should_receive(:system).with("ffmpeg @@ENCODE_OPTS@@ \"#{@sample_file}\" >/dev/null 2>&1").and_return(true)
     Resque.redis.hset("request", request_id, json_job.to_json)
     DBEE::Job::Encode::IPAD.perform(request_id, running_job, args)
     File.exists?(@sample_file).should be_true
@@ -78,7 +77,7 @@ describe 'DBEE Encode Job for iPad' do
     request_id  = json_job["request_id"]
     running_job = json_job["running_job"]
     args        = json_job["run_list"][0]["args"]
-    Object.stub!(:system).and_return(false)
+    DBEE::Job::Encode::IPAD.stub(:system).and_return(false)
     Resque.redis.hset("request", request_id, json_job.to_json)
 
     proc {

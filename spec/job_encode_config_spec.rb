@@ -14,7 +14,6 @@ describe 'DBEE Encode::Config' do
                       "-r 30000/1001 -s %s -aspect 16:9 -bufsize 14000k -maxrate 2500k " +
                       "-acodec libfaac -ar 48000 -ac 2 -ab 128k -async 1 " +
                       "-threads %s"
-    Facter.stub(:processorcount).and_return('PPP')
   end
 
   def get_new_config
@@ -30,6 +29,7 @@ describe 'DBEE Encode::Config' do
   end
 
   it 'says get_cmd' do
+    Facter.stub(:processorcount).and_return('PPP')
     get_cmd_format = @get_cmd_format.dup
     get_cmd_format << " -programid %s"
     config = get_new_config
@@ -47,6 +47,7 @@ describe 'DBEE Encode::Config' do
 
   it 'says @program_id is empty when there is no PROGRAM_ID matches' do
     Facter.stub(:kernel).and_return('Linux')
+    Facter.stub(:processorcount).and_return('PPP')
     config = get_new_config
     config.source = 'TOKYOFX.ts'
     config.get_programid.should be_nil
