@@ -1,3 +1,6 @@
 [submodule "vendor/resque"]
 	path = vendor/resque
 	url = git://github.com/defunkt/resque.git
+[submodule "vendor/httpclient"]
+	path = vendor/httpclient
+	url = git://github.com/nabeken/httpclient.git
