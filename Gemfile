@@ -15,4 +15,5 @@ group :test do
   gem 'rake'
   gem 'shotgun'
   gem 'god'
+  gem 'nokogiri'
 end
