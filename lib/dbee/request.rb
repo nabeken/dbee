@@ -66,20 +66,22 @@ module DBEE
         Response.new(response)
       end
 
-      def get_new_http_client(user = nil, pass = nil)
+      def get_new_http_client(user = nil, pass = nil, url = nil)
         user ||= DBEE::Config::HTTP_USER
         pass ||= DBEE::Config::HTTP_PASSWORD
+        url  ||= request_url
         proxy = ENV['HTTP_PROXY'] || ENV['http_proxy'] || nil
         http = HTTPClient.new(proxy)
-        http.set_auth('/', user, pass)
+        http.set_auth(url, user, pass)
         http.ssl_config.add_trust_ca(DBEE::Config::CA_DIR)
         http.ssl_config.verify_mode = OpenSSL::SSL::VERIFY_NONE
         http
       end
 
       def get(url, &block)
-        http = Request.get_new_http_client
-        http.set_auth(url, DBEE::Config::HTTP_USER, DBEE::Config::HTTP_PASSWORD)
+        http = Request.get_new_http_client(DBEE::Config::HTTP_USER,
+                                           DBEE::Config::HTTP_PASSWORD,
+                                           url)
         if block.nil?
           http.get(url)
         else
