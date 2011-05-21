@@ -1,5 +1,7 @@
 require 'simplecov'
-SimpleCov.start 'rails'
+SimpleCov.start 'rails' do
+  add_filter "/vendor/"
+end
 
 Encoding.default_external = "UTF-8" if defined? Encoding
 Encoding.default_internal = "UTF-8" if defined? Encoding
