@@ -1,5 +1,6 @@
 # vim:fileencoding=utf-8
 
+require 'dbee/digest'
 require 'facter'
 require 'fileutils'
 require 'uri'
@@ -93,7 +94,8 @@ module DBEE
         end
 
         # SHA256でダウンロードした素材を確かめる
-        digest = calc_digest(download_file)
+        puts "Calculating SHA256 for #{download_file}...."
+        digest = FileDigest::SHA256.digest(download_file)
         if metadata["SHA256"] != digest.hexdigest
           File.unlink(download_file)
           request_data["running_job"] = nil
@@ -102,18 +104,6 @@ module DBEE
                 "expected: #{metadata["SHA256"]}, got #{digest.hexdigest}"
         end
         closer.call(:file => download_file, :is_copied => true)
-      end
-
-      def self.calc_digest(download_file)
-        puts "Calculating SHA256 for #{download_file}...."
-        digest = Digest::SHA256.new
-        File.open(download_file, 'r') do |f|
-          buf = String.new
-          while f.read(1024 * 8, buf)
-            digest << buf
-          end
-        end
-        digest
       end
     end
   end

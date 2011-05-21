@@ -1,9 +1,8 @@
 # vim:fileencoding=utf-8
 
+require 'dbee/digest'
 require 'dbee/job/encode'
 require 'facter'
-require 'digest/md5'
-require 'digest/sha2'
 
 module DBEE
   module Job
@@ -49,13 +48,7 @@ module DBEE
 
           puts "Calculating MD5 for #{config.output}...."
           # 成果物のハッシュ値を計算 (S3向けにひとまずMD5)
-          digest = Digest::MD5.new
-          File.open(config.output, "r") do |f|
-            buf = String.new
-            while f.read(1024 * 8, buf)
-              digest << buf
-            end
-          end
+          digest = FileDigest::MD5.digest(config.output)
           puts "...finished."
 
           # 素材のコピーの場合は削除する

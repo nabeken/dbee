@@ -1,9 +1,9 @@
 # vim:fileencoding=utf-8
 
+require 'dbee/digest'
 require 'dbee/job'
 require 'facter'
 require 'fileutils'
-require 'digest/sha2'
 require 'pathname'
 require 'tmpdir'
 
@@ -86,13 +86,7 @@ module DBEE
           puts "metadata for #{basename} found. skipped...."
         else
           puts "Calculating SHA256 for #{basename}...."
-          digest = Digest::SHA256.new
-          File.open(filename, 'r') do |f|
-            buf = ''
-            while f.read(1024 * 1024 *  8, buf)
-              digest << buf
-            end
-          end
+          digest = FileDigest::SHA256.digest(filename)
 
           # JSONの生成
           json = {
