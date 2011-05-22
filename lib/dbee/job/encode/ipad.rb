@@ -47,8 +47,9 @@ module DBEE
           puts "encode successfully finished"
 
           puts "Calculating MD5 for #{config.output}...."
-          # 成果物のハッシュ値を計算 (S3向けにひとまずMD5)
-          digest = FileDigest::MD5.digest(config.output)
+          # 成果物のハッシュ値を計算
+          digest_md5 = FileDigest::MD5.digest(config.output)
+          digest_sha256 = FileDigest::SHA256.digest(config.output)
           puts "...finished."
 
           # 素材のコピーの場合は削除する
@@ -59,7 +60,8 @@ module DBEE
 
           # request_data APIへ報告する
           job = request_data["run_list"].first
-          job["output"]["MD5"] = digest.hexdigest
+          job["output"]["MD5"] = digest_md5.hexdigest
+          job["output"]["MD5"] = digest_sha256.hexdigest
           job["output"]["file"] = config.output
           job["output"]["worker"] = worker
           # 次のジョブも同一ノードで実行してほしい
