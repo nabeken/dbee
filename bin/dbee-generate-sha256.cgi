@@ -9,6 +9,7 @@ Encoding.default_internal = "UTF-8" if defined? Encoding
 
 require 'rack'
 require 'pathname'
+require 'uri'
 require 'fileutils'
 require 'dbee/digest'
 require 'dbee/dav'
@@ -19,7 +20,7 @@ module DBEE
       def call(env)
         request = Rack::Request.new(env)
         # 生成するファイル名取得
-        target = Pathname.new(request[:target])
+        target = Pathname.new(URI.decode(request[:target]))
         file = Pathname.new(DBEE::Config::DAV_DIR + '/' + target.basename.to_s)
 
         if file.exist?
