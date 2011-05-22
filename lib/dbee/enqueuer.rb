@@ -38,7 +38,7 @@ module DBEE
             }
           },
           {
-            "name" => "DBEE::Job::Upload::S3",
+            "name" => "DBEE::Job::Upload::DAV",
             "args" => {}
           },
           {
