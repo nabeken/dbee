@@ -87,7 +87,7 @@ module DBEE
     end
 
     def get_full_url(key)
-      URI.parse("#{DBEE::Config::Upload::DAV_STORAGE_BASE_URL}/#{key}")
+      URI.parse("#{DBEE::Config::Upload::DAV_STORAGE_BASE_URL}/#{URI.encode(key)}")
     end
 
     def get_header
