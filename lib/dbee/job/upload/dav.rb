@@ -45,9 +45,10 @@ module DBEE
             key = File.basename(upload_file)
             dav.put(key, File.open(upload_file, "r"))
 
-            # SHA256が不一致なら例外
+            # SHA256が不一致なら削除して例外
             sha256 = dav.propget(key, "SHA256")
             if args["SHA256"] != sha256
+              dav.delete(key)
               raise "SHA256 checksum does not match. " +
                     "expected: #{args["SHA256"]}, got: #{sha256}"
             end

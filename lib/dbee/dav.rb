@@ -45,6 +45,14 @@ module DBEE
       end
     end
 
+    def delete(key)
+      full_url = get_full_url(key)
+      response = @http.delete(key)
+      if response.status != 204
+        raise "failed to DELETE #{key}, response: #{response.inspect}"
+      end
+    end
+
     def get(key)
       # TODO: GETを発行
     end
