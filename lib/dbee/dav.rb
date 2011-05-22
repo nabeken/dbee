@@ -41,7 +41,7 @@ module DBEE
         :target => key
       )
       if response.status != 200
-        raise "failed to generate SHA256, status: #{response.status}"
+        raise "failed to generate SHA256, status: #{response.inspect}"
       end
     end
 
