@@ -35,6 +35,7 @@ module DBEE
       AMAZON_ACCESS_KEY_ID = ENV['AMAZON_ACCESS_KEY_ID'] || 'your access key'
       AMAZON_SECRET_ACCESS_KEY = ENV['AMAZON_SECRET_ACCESS_KEY'] || 'your secret key'
       UPLOAD_BUCKET = 'dbee'
+      DAV_STORAGE_BASE_URL = "https://dav.example.org/"
     end
   end
 end
