@@ -8,6 +8,7 @@ module DBEE
     MATERIAL_BASE_URL = "http://192.168.5.3/"
     REQUEST_REDIS_HKEY = "request"
     MATERIAL_DIR = "/srv/storage/recordings"
+    DAV_DIR = "/srv/dav"
     HTTP_USER = "dbee"
     HTTP_PASSWORD = "dbee"
     CA_DIR = "/etc/ssl/certs"
