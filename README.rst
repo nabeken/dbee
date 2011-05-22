@@ -13,7 +13,7 @@ REQUIREMENT
 - Redis (used by resque)
 - stunnel to tunnel redis connection securely (if you want to distribute jobs across the internet)
 - Web server to serve materials (Nginx, lighttpd, Apache, etc...)
-- Amazon S3 or Swift to store outputs
+- Object Storage or WebDAV-based storage such as Amazon S3, Swift or mod_dav(Apache2)
 
 INSTALL
 =======
