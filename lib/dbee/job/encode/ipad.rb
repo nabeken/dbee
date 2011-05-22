@@ -61,7 +61,7 @@ module DBEE
           # request_data APIへ報告する
           job = request_data["run_list"].first
           job["output"]["MD5"] = digest_md5.hexdigest
-          job["output"]["MD5"] = digest_sha256.hexdigest
+          job["output"]["SHA256"] = digest_sha256.hexdigest
           job["output"]["file"] = config.output
           job["output"]["worker"] = worker
           # 次のジョブも同一ノードで実行してほしい
