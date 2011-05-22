@@ -42,7 +42,7 @@ module DBEE
             dav = DBEE::DAVAccess.new(DBEE::Config::HTTP_USER,
                                       DBEE::Config::HTTP_PASSWORD)
 
-            key = "upload/#{File.basename(upload_file)}"
+            key = File.basename(upload_file)
             dav.put(key, File.open(upload_file, "r"))
 
             # SHA256が不一致なら例外
