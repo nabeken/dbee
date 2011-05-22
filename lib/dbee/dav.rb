@@ -32,7 +32,7 @@ module DBEE
       end
       # PUTを発行
       response = @http.put(full_url, :body => f)
-      if response.status != 200 and response.status != 204
+      if response.status != 200 and response.status != 204 and response.status != 201
         raise "failed to put #{File.basename(f)}, status: #{response.status}"
       end
       # ハッシュ値生成用CGIをkick
