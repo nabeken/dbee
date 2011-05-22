@@ -13,7 +13,7 @@ module DBEE
       @http_password = pass
       @http = Request.get_new_http_client(@http_user,
                                           @http_password,
-                                          DBEE::Config::MATERIAL_BASE_URL)
+                                          DBEE::Config::Upload::DAV_STORAGE_BASE_URL)
       # WORKAROUND: Set send_timeout, receive_timeout to 1 days
       @http.send_timeout = 86400
       @http.receive_timeout = 85400
@@ -22,7 +22,7 @@ module DBEE
     def put(key, f)
       raise "content must be file" unless HTTP::Message.file?(f)
       full_url = get_full_url(key)
-      base_url = "#{DBEE::Config::MATERIAL_BASE_URL}/#{File.dirname(full_url.path)}"
+      base_url = "#{DBEE::Config::Upload::DAV_STORAGE_BASE_URL}#{File.dirname(full_url.path)}"
       # ディレクトリがなければ作成
       response = @http.get(base_url)
       if response.status == 404
@@ -37,7 +37,7 @@ module DBEE
       end
       # ハッシュ値生成用CGIをkick
       response = @http.get(
-        "#{DBEE::Config::MATERIAL_BASE_URL}cgi-bin/dbee-generate-sha256.cgi",
+        "#{DBEE::Config::Upload::DAV_STORAGE_BASE_URL}/cgi-bin/dbee-generate-sha256.cgi",
         :target => key
       )
       if response.status != 200
@@ -87,7 +87,7 @@ module DBEE
     end
 
     def get_full_url(key)
-      URI.parse("#{DBEE::Config::MATERIAL_BASE_URL}/#{key}")
+      URI.parse("#{DBEE::Config::Upload::DAV_STORAGE_BASE_URL}/#{key}")
     end
 
     def get_header
