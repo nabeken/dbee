@@ -22,6 +22,12 @@ module DBEE
         request.start_job(:worker => worker, :running_job => running_job)
 
         request_data = request.get.body
+        # エンコードジョブを探す
+        encode_job = request_data["ran_list"].find do |j|
+          j["name"] =~ /^DBEE::Job::Encode::/
+        end
+        encode_started_at = Time.mktime(encode_job["args"]["job_started_at"])
+        encode_finished_at = Time.mktime(encode_job["args"]["job_finished_at"])
 
         Pony.mail(
             :from    => 'nabeken@tknetworks.org',
@@ -37,10 +43,10 @@ module DBEE
 #{request_data["program"]["filename"]}のエンコード、アップロードが完了しました。
 #{args["url"]}
 
-エンコード開始時刻:
-エンコード終了時刻:
-素材ファイルサイズ:
-アップロードファイルサイズ:").force_encoding("ASCII-8BIT")
+担当: #{args["worker"]}
+エンコード開始時刻: #{encode_started_at}
+エンコード終了時刻: #{encode_finished_at}
+").force_encoding("ASCII-8BIT")
         )
       end
     end

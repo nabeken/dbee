@@ -40,6 +40,7 @@ module DBEE
 
           cmd = "ffmpeg #{config.get_cmd} \"#{config.output}\" >/dev/null 2>&1"
           puts cmd
+          encode_started_at = Time.now
           unless system(cmd)
             # ffmpegが失敗した場合
             File.unlink(config.output) if File.exists?(config.output)
@@ -48,6 +49,7 @@ module DBEE
             raise "request_data #{request.request_id} failed."
           end
           puts "encode successfully finished"
+          encode_finished_at = Time.now
 
           puts "Calculating MD5 for #{config.output}...."
           # 成果物のハッシュ値を計算
@@ -67,6 +69,8 @@ module DBEE
           job["output"]["SHA256"] = digest_sha256.hexdigest
           job["output"]["file"] = config.output
           job["output"]["worker"] = worker
+          job["output"]["job_started_at"] = encode_started_at.to_a
+          job["output"]["job_finished_at"] = encode_finished_at.to_a
           # 次のジョブも同一ノードで実行してほしい
           job["output"]["next_same_node"] = true
           # リクエスト更新
