@@ -35,11 +35,14 @@ module DBEE
           config.size = "1280x720"
           config.dir = "iPad"
 
+          # 実行前に保存先のディレクトリがなければ作成
+          config.mk_save_dir
+
           cmd = "ffmpeg #{config.get_cmd} \"#{config.output}\" >/dev/null 2>&1"
           puts cmd
           unless system(cmd)
             # ffmpegが失敗した場合
-            File.unlink(config.output)
+            File.unlink(config.output) if File.exists?(config.output)
             request_data["running_job"] = nil
             request.put(request_data)
             raise "request_data #{request.request_id} failed."

@@ -45,6 +45,10 @@ module DBEE
           "#{DBEE::Config::Encode::OUTPUT_DIR}/#{dir}/"
         end
 
+        def mk_save_dir
+          FileUtils.mkdir_p(save_dir) unless File.exist?(save_dir)
+        end
+
         def get_cmd
           format_args = [@source, DBEE::Config::Encode::PRESET, @size, get_processor_count]
 
