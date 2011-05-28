@@ -26,8 +26,8 @@ module DBEE
         encode_job = request_data["ran_list"].find do |j|
           j["name"] =~ /^DBEE::Job::Encode::/
         end
-        encode_started_at = Time.mktime(encode_job["args"]["job_started_at"])
-        encode_finished_at = Time.mktime(encode_job["args"]["job_finished_at"])
+        encode_started_at = Time.mktime(*encode_job["output"]["job_started_at"])
+        encode_finished_at = Time.mktime(*encode_job["output"]["job_finished_at"])
 
         Pony.mail(
             :from    => 'nabeken@tknetworks.org',
