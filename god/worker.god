@@ -9,8 +9,9 @@ load File.dirname(__FILE__) + '/../config.rb'
 # material-worker node
 # (material, worker)
 {
-  :upload   => [1, "upload_#{node}"],
-  :worker   => [1, "encode_#{node},all_worker"]
+  :upload     => [1, "upload_#{node}"],
+  :all_worker => [1, "all_worker"]
+  :worker     => [1, "encode_#{node}"]
 }.each do |name, job|
   count = job.shift
   queue = job.shift

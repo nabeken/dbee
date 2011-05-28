@@ -18,8 +18,15 @@ module DBEE
       end
 
       def self.perform(request_id, running_job, args)
-        request = Request.new(request_id)
         worker = Facter.value(:fqdn)
+
+        # encodeジョブキューが1以上なら処理を中断する
+        if Resque.size("encode_#{worker}") > 0
+          puts "Waiting for encoding job finished...."
+          sleep 60 * 3
+          return
+        end
+        request = Request.new(request_id)
         request.start_job(:worker => worker, :running_job => running_job)
 
         request_data = request.get.body
