@@ -13,6 +13,7 @@ God.watch do |w|
   w.interval = 30.seconds
   w.env      = {"QUEUE" => "master", "VVERBOSE" => "1"}
   w.start    = "#{DBEE::Config::RAKE} -f #{rakefile} resque:work"
+  w.stop_signal = 'QUIT'
   w.dir      = File.dirname(__FILE__) + '/../'
   #w.uid      = "root"
   #w.gid      = "root"

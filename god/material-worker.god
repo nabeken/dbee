@@ -23,6 +23,7 @@ load File.dirname(__FILE__) + '/../config.rb'
       w.interval = 30.seconds
       w.env      = {"QUEUE" => queue, "VVERBOSE" => "1"}
       w.start    = "#{DBEE::Config::RAKE} -f #{rakefile} resque:work"
+      w.stop_signal = 'QUIT'
       w.dir      = File.dirname(__FILE__) + '/../'
       #w.uid      = "root"
       #w.gid      = "root"
