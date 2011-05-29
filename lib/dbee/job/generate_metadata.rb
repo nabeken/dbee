@@ -37,54 +37,54 @@ module DBEE
           raise "material not found"
         end
 
-        # 一時ディレクトリを作る
-        Dir.mktmpdir("dbee-") do |dir|
-          aac = "#{dir}/#{filename.basename}.aac"
-          # まずTSからAACだけ抜く
-          puts "Extracting audio track from #{filename}...."
-          cmd = "ffmpeg -i \"#{filename}\" -vn -acodec copy \"#{aac}\" >/dev/null 2>&1"
-          unless system(cmd)
-            raise "failed to extract audio track. #{cmd}. return code: #{$?}"
-          end
-          puts "..finished"
-
-          # faadへ渡して音声切り替えが起きているか検証する
-          puts "validating audio track ...."
-          system("#{DBEE::Config::FAAD} -w \"#{aac}\" >/dev/null 2>&1")
-          puts "..finished"
-
-          # FIXME: 異常終了か正常終了か見分けられない....
-          if $?.exitstatus == 21
-            # 切り替えあり
-            puts "audio track varies channel settings. We need to split material."
-            puts "Executing TsSplitter...."
-            cmd = "LANG=ja_JP.UTF-8 #{DBEE::Config::WINE} #{DBEE::Config::TSSPLITTER} -SEPA -SD -1SEG -OUT #{dir} \"#{filename}\" >/dev/null 2>&1"
-            unless system(cmd)
-              raise "failed to execute TsSplitter.exe"
-            end
-            puts "..finished"
-            # 複数の生成物からファイルサイズが一番大きいものを選ぶ
-            new_material = Pathname.glob("#{dir}/*.ts").sort { |a, b|
-              b.size <=> a.size
-            }.first
-            if new_material.nil?
-              raise "execute TsSplitter failed"
-            end
-            puts "rename #{filename} to #{filename}.orig"
-            # まず以前のTSをリネーム
-            filename.rename("#{filename}.orig.ts")
-            # もとのファイル名へ移動
-            puts "rename #{new_material} to #{filename}"
-            FileUtils.mv(new_material, filename)
-          else
-            # なし
-          end
-        end
-
         # すでにmetadataが生成済みならそのまま終了
         if File.exist?("#{filename}.json")
           puts "metadata for #{basename} found. skipped...."
         else
+          # 一時ディレクトリを作る
+          Dir.mktmpdir("dbee-") do |dir|
+            aac = "#{dir}/#{filename.basename}.aac"
+            # まずTSからAACだけ抜く
+            puts "Extracting audio track from #{filename}...."
+            cmd = "ffmpeg -i \"#{filename}\" -vn -acodec copy \"#{aac}\" >/dev/null 2>&1"
+            unless system(cmd)
+              raise "failed to extract audio track. #{cmd}. return code: #{$?}"
+            end
+            puts "..finished"
+
+            # faadへ渡して音声切り替えが起きているか検証する
+            puts "validating audio track ...."
+            system("#{DBEE::Config::FAAD} -w \"#{aac}\" >/dev/null 2>&1")
+            puts "..finished"
+
+            # FIXME: 異常終了か正常終了か見分けられない....
+            if $?.exitstatus == 21
+              # 切り替えあり
+              puts "audio track varies channel settings. We need to split material."
+              puts "Executing TsSplitter...."
+              cmd = "LANG=ja_JP.UTF-8 #{DBEE::Config::WINE} #{DBEE::Config::TSSPLITTER} -SEPA -SD -1SEG -OUT #{dir} \"#{filename}\" >/dev/null 2>&1"
+              unless system(cmd)
+                raise "failed to execute TsSplitter.exe"
+              end
+              puts "..finished"
+              # 複数の生成物からファイルサイズが一番大きいものを選ぶ
+              new_material = Pathname.glob("#{dir}/*.ts").sort { |a, b|
+                b.size <=> a.size
+              }.first
+              if new_material.nil?
+                raise "execute TsSplitter failed"
+              end
+              puts "rename #{filename} to #{filename}.orig"
+              # まず以前のTSをリネーム
+              filename.rename("#{filename}.orig.ts")
+              # もとのファイル名へ移動
+              puts "rename #{new_material} to #{filename}"
+              FileUtils.mv(new_material, filename)
+            else
+              # なし
+            end
+          end
+
           puts "Calculating SHA256 for #{basename}...."
           digest = FileDigest::SHA256.digest(filename)
 
@@ -94,7 +94,7 @@ module DBEE
             "size"     => filename.size,
             "SHA256"   => digest.hexdigest,
             "mtime"    => filename.mtime,
-            "ctime"    => filename.ctime
+            "ctime"    => filename.ctime,
           }
 
           File.open("#{filename}.json", 'w') do |f|
