@@ -55,8 +55,8 @@ module DBEE
           request_data["run_list"][0]["output"]["worker"] = worker
           request_data["run_list"][0]["output"]["is_copied"] = args[:is_copied]
           request_data["run_list"][0]["output"]["size"] = args[:size]
-          request_data["run_list"][0]["output"]["job_started_at"] = args[:job_started_at]
-          request_data["run_list"][0]["output"]["job_finished_at"] = args[:job_finished_at]
+          request_data["run_list"][0]["output"]["job_started_at"] = args[:job_started_at].to_a
+          request_data["run_list"][0]["output"]["job_finished_at"] = args[:job_finished_at].to_a
 
           # 次のジョブも同一ノードで実行してほしい
           request_data["run_list"][0]["output"]["next_same_node"] = true
