@@ -27,8 +27,8 @@ module DBEE
         download_job = request_data["ran_list"].find do |j|
           j["name"] =~ /^DBEE::Job::Download/
         end
-        download_started_at = Time.mktime(*download_job["output"][":job_started_at"])
-        download_finished_at = Time.mktime(*download_job["output"][":job_finished_at"])
+        download_started_at = Time.mktime(*download_job["output"]["job_started_at"])
+        download_finished_at = Time.mktime(*download_job["output"]["job_finished_at"])
         download_size = download_job["output"]["size"]
         # ダウンロードの平均速度 (MB/s)
         download_speed = (download_size / (download_finished_at - download_started_at)) / 1000.0
