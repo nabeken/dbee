@@ -54,6 +54,9 @@ module DBEE
           request_data["run_list"][0]["output"]["file"] = args[:file]
           request_data["run_list"][0]["output"]["worker"] = worker
           request_data["run_list"][0]["output"]["is_copied"] = args[:is_copied]
+          request_data["run_list"][0]["output"]["size"] = args[:size]
+          request_data["run_list"][0]["output"]["job_started_at"] = args[:job_started_at]
+          request_data["run_list"][0]["output"]["job_finished_at"] = args[:job_finished_at]
 
           # 次のジョブも同一ノードで実行してほしい
           request_data["run_list"][0]["output"]["next_same_node"] = true
@@ -87,11 +90,13 @@ module DBEE
         end
 
         puts "start downloading material from #{url} to #{download_file}...."
+        download_started_at = Time.now
         f = File.open(download_file, "wb")
         response = Request.get(url) do |data|
           f << data
         end
         f.close
+        download_finished_at = Time.now
 
         if response.status != 200
           File.unlink(download_file)
@@ -110,7 +115,9 @@ module DBEE
           raise "downloaded file #{download_file} does not match SHA256 checksums.\n" +
                 "expected: #{metadata["SHA256"]}, got #{digest.hexdigest}"
         end
-        closer.call(:file => download_file, :is_copied => true)
+        closer.call(:file => download_file, :is_copied => true, :size => File.size(download_file),
+                    :job_started_at => download_started_at,
+                    :job_finished_at => download_finished_at)
       end
     end
   end
