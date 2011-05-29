@@ -43,7 +43,9 @@ module DBEE
                                       DBEE::Config::HTTP_PASSWORD)
 
             key = File.basename(upload_file)
+            upload_started_at = Time.now
             dav.put(key, File.open(upload_file, "r"))
+            upload_finished_at = Time.now
 
             # SHA256が不一致なら削除して例外
             sha256 = dav.propget(key, "SHA256")
@@ -56,6 +58,8 @@ module DBEE
             # 終了処理
             request_data["run_list"][0]["output"]["url"] = dav.get_full_url(key)
             request_data["run_list"][0]["output"]["worker"] = worker
+            request_data["run_list"][0]["output"]["job_started_at"] = upload_started_at.to_a
+            request_data["run_list"][0]["output"]["job_finished_at"] = upload_finished_at.to_a
             request.put(request_data)
 
             # 最後にrunning_jobをDELETEしてジョブの正常終了を通知
