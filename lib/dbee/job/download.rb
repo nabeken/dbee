@@ -79,7 +79,7 @@ module DBEE
         download_file = "#{download_dir}/#{filename}"
         if File.exist?(download_file)
           puts "material found..."
-          digest = calc_digest(download_file)
+          digest = FileDigest::SHA256.digest(download_file)
           if metadata["SHA256"] == digest.hexdigest
             puts "and match SHA256. do nothing..."
             closer.call(:file => download_file, :is_copied => true)
