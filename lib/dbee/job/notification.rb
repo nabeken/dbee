@@ -31,7 +31,7 @@ module DBEE
         download_finished_at = Time.mktime(*download_job["output"]["job_finished_at"])
         download_size = download_job["output"]["size"]
         # ダウンロードの平均速度 (MB/s)
-        download_speed = (download_size / (download_finished_at - download_started_at)) / 1000.0
+        download_speed = (download_size / (download_finished_at - download_started_at)) / (1000.0 ** 2)
 
         # アップロードジョブを探す
         upload_job = request_data["ran_list"].find do |j|
@@ -41,7 +41,7 @@ module DBEE
         upload_finished_at = Time.mktime(*upload_job["output"]["job_finished_at"])
         upload_size = upload_job["output"]["size"]
         # ダウンロードの平均速度 (MB/s)
-        upload_speed = (upload_size / (upload_finished_at - upload_started_at)) / 1000.0
+        upload_speed = (upload_size / (upload_finished_at - upload_started_at)) / (1000.0 ** 2)
 
         # エンコードジョブを探す
         encode_job = request_data["ran_list"].find do |j|
