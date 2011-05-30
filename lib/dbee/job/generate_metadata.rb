@@ -39,6 +39,8 @@ module DBEE
           raise "material not found"
         end
 
+        FileUtils.mkdir_p(metadata_dir) unless metadata_dir.exist?
+
         # すでにmetadataが生成済みならそのまま終了
         if File.exist?(metadata_file)
           puts "metadata for #{basename} found. skipped...."
