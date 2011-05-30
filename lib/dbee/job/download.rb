@@ -37,13 +37,14 @@ module DBEE
         url = URI.encode("#{args["base_url"]}#{filename}")
         FileUtils.mkdir_p(download_dir) unless File.exists?(download_dir)
 
-        puts "start downloading metadata from #{url}.json.."
+        metadata_url = File.dirname(url.to_s) + '/._dbee_metadata/' + File.basename(url.to_s)
+        puts "start downloading metadata from #{metadata_url}...."
         # まずメタデータを取得する (ファイルには保存せずメモリ上へ展開)
-        response = Request.get("#{url}.json")
+        response = Request.get(metadata_url)
         if response.status != 200
           request_data["running_job"] = nil
           request.put(request_data)
-          raise "failed to download from #{url}.json. got #{response.status}"
+          raise "failed to download from #{metadata_url}. got #{response.status}"
         end
         metadata = JSON.parse(response.content)
 
