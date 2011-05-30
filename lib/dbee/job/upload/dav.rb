@@ -58,6 +58,7 @@ module DBEE
             # 終了処理
             request_data["run_list"][0]["output"]["url"] = dav.get_full_url(key)
             request_data["run_list"][0]["output"]["worker"] = worker
+            request_data["run_list"][0]["output"]["size"] = File.size(upload_file)
             request_data["run_list"][0]["output"]["job_started_at"] = upload_started_at.to_a
             request_data["run_list"][0]["output"]["job_finished_at"] = upload_finished_at.to_a
             request.put(request_data)
