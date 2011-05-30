@@ -30,6 +30,8 @@ module DBEE
 
         basename = request_data["program"]["filename"]
         filename = Pathname.new("#{DBEE::Config::MATERIAL_DIR}/#{basename}")
+        metadata_dir = filename.dirname + '._dbee_metadata'
+        metadata_file = metadata_dir + "#{filename.basename}.json"
 
         unless File.exist?(filename)
           request_data["running_job"] = nil
@@ -38,7 +40,7 @@ module DBEE
         end
 
         # すでにmetadataが生成済みならそのまま終了
-        if File.exist?("#{filename}.json")
+        if File.exist?(metadata_file)
           puts "metadata for #{basename} found. skipped...."
         else
           # 一時ディレクトリを作る
@@ -97,7 +99,7 @@ module DBEE
             "ctime"    => filename.ctime,
           }
 
-          File.open("#{filename}.json", 'w') do |f|
+          File.open(metadata_file, 'w') do |f|
             f.puts json.to_json
           end
         end
