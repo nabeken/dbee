@@ -37,7 +37,7 @@ module DBEE
         url = URI.encode("#{args["base_url"]}#{filename}")
         FileUtils.mkdir_p(download_dir) unless File.exists?(download_dir)
 
-        metadata_url = File.dirname(url.to_s) + '/._dbee_metadata/' + File.basename(url.to_s)
+        metadata_url = File.dirname(url.to_s) + '/._dbee_metadata/' + File.basename(url.to_s) + '.json'
         puts "start downloading metadata from #{metadata_url}...."
         # まずメタデータを取得する (ファイルには保存せずメモリ上へ展開)
         response = Request.get(metadata_url)
