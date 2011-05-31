@@ -23,8 +23,9 @@ module DBEE
         # encodeジョブキューが1以上なら5分待って再キュー
         if Resque.size("encode_#{worker}") > 0
           puts "Waiting for encoding job finished...."
-          sleep 60 * 5
+          sleep 60
           Resque.enqueue(DBEE::Job::Download, request_id, running_job, args)
+          return
         end
         request = Request.new(request_id)
         request.start_job(:worker => worker, :running_job => running_job)
