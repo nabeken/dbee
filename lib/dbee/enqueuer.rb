@@ -14,7 +14,7 @@ module DBEE
       # MATERIAL_DIR以下にない場合はシンボリックリンクを張る
       @material = Pathname.new("#{DBEE::Config::MATERIAL_DIR}/#{input.basename}")
       unless File.exist?(material)
-        @material.symlink(input)
+        File.symlink(input, @material)
       end
     end
 
