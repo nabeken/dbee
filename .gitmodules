@@ -3,4 +3,4 @@
 	url = git://github.com/defunkt/resque.git
 [submodule "vendor/httpclient"]
 	path = vendor/httpclient
-	url = git://github.com/nabeken/httpclient.git
+	url = git://github.com/nahi/httpclient.git
