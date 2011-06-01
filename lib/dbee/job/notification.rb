@@ -73,11 +73,11 @@ module DBEE
 ダウンロード開始時刻: #{download_started_at}
 ダウンロード終了時刻: #{download_finished_at}
 ダウンロード平均速度(MB/s): #{download_speed}
+エンコード開始時刻: #{encode_started_at}
+エンコード終了時刻: #{encode_finished_at}
 アップロード開始時刻: #{upload_started_at}
 アップロード終了時刻: #{upload_finished_at}
 アップロードロード平均速度(MB/s): #{upload_speed}
-エンコード開始時刻: #{encode_started_at}
-エンコード終了時刻: #{encode_finished_at}
 ").force_encoding("ASCII-8BIT")
         )
       end
