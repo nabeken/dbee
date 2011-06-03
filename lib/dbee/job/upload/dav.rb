@@ -63,6 +63,9 @@ module DBEE
             request_data["run_list"][0]["output"]["job_finished_at"] = upload_finished_at.to_a
             request.put(request_data)
 
+            # アップロードしたファイルは削除
+            File.unlink(upload_file)
+
             # 最後にrunning_jobをDELETEしてジョブの正常終了を通知
             request.delete("running_job")
             puts "Uploading job for request_data##{request.request_id} sucessfully finished."
