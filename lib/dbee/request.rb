@@ -1,8 +1,5 @@
 # vim:fileencoding=utf-8
 
-# FIXME: Transfer-Encoding: chunkedを使わないバージョンが取り込まれたら消す
-$LOAD_PATH.unshift File.dirname(__FILE__) + '/../../vendor/httpclient/lib'
-
 require 'httpclient'
 require 'dbee/response'
 
