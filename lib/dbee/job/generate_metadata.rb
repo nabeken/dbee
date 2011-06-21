@@ -62,7 +62,8 @@ module DBEE
             puts "..finished"
 
             # FIXME: 異常終了か正常終了か見分けられない....
-            if $?.exitstatus == 21
+            # FIXME: 21以外にも32の場合もあった
+            if $?.exitstatus == 21 or $?.exitstatus == 32
               # 切り替えあり
               puts "audio track varies channel settings. We need to split material."
               puts "Executing TsSplitter...."
