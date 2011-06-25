@@ -4,7 +4,7 @@ require File.dirname(__FILE__) + '/spec_helper'
 require 'dbee/job'
 require 'fileutils'
 
-describe 'DBEE Encode Job for iPad' do
+describe DBEE::Job::Encode::IPAD do
   before(:all) do
     @json_job = {
       "requester"   => "rspec.tokyo",

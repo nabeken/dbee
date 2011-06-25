@@ -3,7 +3,7 @@
 require File.dirname(__FILE__) + '/spec_helper'
 require 'dbee/job'
 
-describe 'DBEE Upload to S3 Job' do
+describe DBEE::Job::Upload::S3 do
   before(:all) do
     @original_file = Pathname.new(File.dirname(__FILE__) + '/../coverage/assets/0.4.4/favicon.png')
     @json_job = {

@@ -3,7 +3,7 @@
 require File.dirname(__FILE__) + '/spec_helper'
 require 'dbee/job'
 
-describe 'DBEE Generating Metadata Job' do
+describe DBEE::Job::GenerateMetadata do
   before(:all) do
     @material_dir = DBEE::Config::MATERIAL_DIR
     @original_file = Pathname.new(File.dirname(__FILE__) + '/../coverage/test.ts')
@@ -37,8 +37,8 @@ describe 'DBEE Generating Metadata Job' do
     }.to_json
   end
 
-  after(:all) do
-    #File.unlink("#{@original_file}.json")
+  after(:each) do
+    #File.unlink(get_json_file(@original_file))
   end
 
   it 'generates metadata in JSON' do
@@ -56,7 +56,7 @@ describe 'DBEE Generating Metadata Job' do
     DBEE::Job::GenerateMetadata.perform(request_id, running_job, args)
 
     # 生成されたJSONが予め作成したものと一致するか
-    generated_metadata = JSON.parse(File.open("#{@original_file}.json", "r").read)
+    generated_metadata = JSON.parse(File.open(get_json_file(@original_file), "r").read)
     generated_metadata.should == JSON.parse(@metadata)
   end
 
@@ -71,12 +71,12 @@ describe 'DBEE Generating Metadata Job' do
 
     # メタデータを生成して、GenerateMetadataによって生成される場所に保存した場合、
     # 上書きはされない
-    File.open("#{@original_file}.json", "w") do |f|
+    File.open(get_json_file(@original_file), "w") do |f|
       f.print "HOMUHOMU"
     end
 
     DBEE::Job::GenerateMetadata.perform(request_id, running_job, args)
-    File.open("#{@original_file}.json", "r").read.should == "HOMUHOMU"
+    File.open(get_json_file(@original_file), "r").read.should == "HOMUHOMU"
   end
 
   it 'try to generates metadata but material does not exist' do

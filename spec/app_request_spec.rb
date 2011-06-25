@@ -3,7 +3,7 @@
 require File.dirname(__FILE__) + '/spec_helper'
 require 'dbee/app/request'
 
-describe 'DBEE Request API App' do
+describe DBEE::App::Request do
   before(:all) do
     @posted_data = {:requests => []}
     @app = DBEE::App::Request

@@ -5,7 +5,7 @@ require 'dbee/job'
 require 'pony'
 require 'nkf'
 
-describe 'DBEE Notification Job' do
+describe DBEE::Job::Notification do
   before(:all) do
   end
 
@@ -19,6 +19,31 @@ describe 'DBEE Notification Job' do
           "name" => "DBEE::Job::Notification",
           "args" => {
             "to" => "rspec@example.org"
+          }
+        }
+      ],
+      "ran_list" => [
+        {
+          "name" => "DBEE::Job::Download",
+          "output" => {
+            "job_started_at"  => Time.now.to_a,
+            "job_finished_at" => Time.now.to_a,
+            "size" => 1000
+          }
+        },
+        {
+          "name" => "DBEE::Job::Encode::IPAD",
+          "output" => {
+            "job_started_at"  => Time.now.to_a,
+            "job_finished_at" => Time.now.to_a
+          }
+        },
+        {
+          "name" => "DBEE::Job::Upload",
+          "output" => {
+            "job_started_at"  => Time.now.to_a,
+            "job_finished_at" => Time.now.to_a,
+            "size" => 1000
           }
         }
       ],

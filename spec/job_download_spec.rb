@@ -6,7 +6,7 @@ require 'dbee/job/download'
 require 'dbee/job'
 require 'digest/sha2'
 
-describe 'DBEE Download Job' do
+describe DBEE::Job::Download do
   before(:all) do
     @original_file = Pathname.new(File.dirname(__FILE__) + '/../coverage/test.ts')
     @original_file_data = File.open(@original_file).read
@@ -43,7 +43,7 @@ describe 'DBEE Download Job' do
       "mtime"    => @original_file.mtime,
       "ctime"    => @original_file.ctime
     }
-    File.open("#{@original_file}.json", "w") do |f|
+    File.open(get_json_file(@original_file), "w") do |f|
       f.puts output.to_json
     end
   end
@@ -51,7 +51,7 @@ describe 'DBEE Download Job' do
   # 生成したjsonを消しておく
   # 削除したファイルを戻しておく
   after(:all) do
-    File.unlink("#{@original_file}.json")
+    File.unlink(get_json_file(@original_file))
     File.open(@original_file, "wb") do |f|
       f.print @original_file_data
     end
@@ -123,9 +123,9 @@ describe 'DBEE Download Job' do
     Resque.redis.hset("request", request_id, request.to_json)
 
     # メタデータ内のSHA256を改変
-    metadata = JSON.parse(File.open("#{@original_file}.json", "r").read)
+    metadata = JSON.parse(File.open(get_json_file(@original_file), "r").read)
     metadata["SHA256"] = "ABCDEFG"
-    File.open("#{@original_file}.json", "w") { |f|
+    File.open(get_json_file(@original_file), "w") { |f|
       f.print metadata.to_json
     }
 

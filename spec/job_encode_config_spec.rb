@@ -3,7 +3,7 @@
 require File.dirname(__FILE__) + '/spec_helper'
 require 'dbee/job'
 
-describe 'DBEE Encode::Config' do
+describe DBEE::Job::Encode::Config do
   before(:all) do
     @preset = DBEE::Config::Encode::PRESET.dup
     DBEE::Config::Encode::PRESET.replace 'preset'

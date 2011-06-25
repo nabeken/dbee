@@ -28,3 +28,7 @@ end
 def app
   @app
 end
+
+def get_json_file(original)
+  original.dirname + '._dbee_metadata' + "#{original.basename}.json"
+end
