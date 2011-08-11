@@ -41,4 +41,4 @@ rescue
   exit 1
 end
 
-# vim:fileencoding=utf-8
+# coding:utf-8

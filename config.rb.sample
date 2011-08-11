@@ -1,4 +1,4 @@
-# vim:fileencoding=utf-8
+# coding:utf-8
 # vim:filetype=ruby
 
 module DBEE

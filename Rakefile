@@ -1,4 +1,4 @@
-# vim:fileencoding=utf-8
+# coding:utf-8
 Encoding.default_external = "UTF-8" if defined? Encoding
 Encoding.default_internal = "UTF-8" if defined? Encoding
 
