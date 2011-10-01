@@ -2,6 +2,7 @@
 
 require 'httpclient'
 require 'dbee/response'
+require 'json'
 
 # APIへのリクエストを抽象化
 module DBEE
