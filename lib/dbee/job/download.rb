@@ -4,6 +4,7 @@ require 'dbee/digest'
 require 'facter'
 require 'fileutils'
 require 'uri'
+require 'json'
 
 module DBEE
   module Job
