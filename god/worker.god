@@ -6,8 +6,8 @@ node = Facter.value(:fqdn)
 rakefile = File.dirname(__FILE__) + '/../Rakefile'
 load File.dirname(__FILE__) + '/../config.rb'
 
-# material-worker node
-# (material, worker)
+# worker node
+# (worker only)
 {
   :upload     => [1, "upload_#{node}"],
   :all_worker => [1, "all_worker"],
