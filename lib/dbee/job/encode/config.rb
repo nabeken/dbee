@@ -53,13 +53,25 @@ module DBEE
           format_args = [@source, DBEE::Config::Encode::PRESET, @size, get_processor_count]
 
           unless get_programid.nil?
-            @cmd_format << " -programid %s"
+            @cmd_format << " #{get_programid_arg_name} %s"
             format_args.push(get_programid)
           end
 
           @cmd_format % format_args
         end
 
+        # programidの指定方法がバージョンによって異なるので適切なものを返す
+        def get_programid_arg_name
+          help = `ffmpeg --help`
+
+          if help.include?('-programid')
+            "-programid"
+          elsif help.include?('-mpegts_service_id')
+            "-mpegts_service_id"
+          else
+            raise "Doest your ffmpeg has arguments that specify program id?"
+          end
+        end
       end
     end
   end
