@@ -44,11 +44,7 @@ module DBEE
           unless system(cmd)
             # ffmpegが失敗した場合
             File.unlink(config.output) if File.exists?(config.output)
-            # 素材のコピーの場合は削除する
-            if args["is_copied"]
-              puts "Remove copied materials...."
-              File.unlink(source)
-            end
+            # 素材のコピーの場合は削除していたが、コンテンツに問題がなければ置いておく？
             request_data["running_job"] = nil
             request.put(request_data)
             raise "request_data #{request.request_id} failed."
